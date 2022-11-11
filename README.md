@@ -8,3 +8,12 @@ pip install PyJWT # https://stackoverflow.com/questions/33198428/jwt-module-obje
 
 docker exec -it FlaskServer /bin/sh
 ```
+
+
+**Create JWT Token**
+```python
+import jwt
+from datetime import datetime, timedelta
+token = jwt.encode({'public_id':19, 'exp':datetime.utcnow() + timedelta(minutes=30)}, 'your secret key')
+```
+- Include in request header as {'x-access-token': token}
