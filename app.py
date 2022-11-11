@@ -92,6 +92,12 @@ def login():
 
     return render_template('login.html') # Response for GET
 
+@app.route('/logout', methods =['GET'])
+def logout():
+    response = make_response(redirect(url_for('index')))
+    response.delete_cookie('x-access-token')
+    return response
+
 ## eBay Routes
 
 @app.route('/')
