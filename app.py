@@ -45,6 +45,26 @@ def token_required(f):
         return f(userid, *args, **kwargs) # f(current_user, *args, **kwargs)
     return decorated
 
+def token_optional(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        # jwt is passed in the request cookies or header
+        if 'x-access-token' in request.cookies:
+            token = request.cookies['x-access-token']
+        elif 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+        print(token)
+
+        try: # if token provided and valid
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+            userid = data['userid']
+        except: # No token
+            userid = None
+        # returns the current logged in users context to the routes
+        return f(userid, *args, **kwargs) # f(current_user, *args, **kwargs)
+    return decorated
+
 @app.route('/login', methods =['POST', 'GET'])
 def login():
     # Authenticate user, set token
@@ -75,11 +95,12 @@ def login():
 ## eBay Routes
 
 @app.route('/')
-def index():
-    if request.cookies.get('x-access-token') is None:
+@token_optional
+def index(userid):
+    if userid is None:
         user = 'guest'
     else:
-        user = request.cookies.get('x-access-token')
+        user = userid
     return render_template('home.html', user=user)
 
 @app.route('/cart')
