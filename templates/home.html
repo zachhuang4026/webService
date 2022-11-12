@@ -1,20 +1,10 @@
-<!doctype html>
-<html>
-    <head>
-        <!-- CSS Stylesheet -->
-    </head>
-    <body>
-        <div class="topnav">
-            <a class="active" href="/">Home</a>
-            <a href="/cart">Shopping Cart</a>
-            <a href="/watchlist">Watchlist</a>
-            <a href="/login">Login</a>
-            <a href="/logout">Logout</a>
-        </div>
-        
-        <h1> eBay Home Page </h1>
+{% extends "base.html" %}
+{% block content %}
 
-        <h3>Welcome userid {{ user }} </h3>
-    </body>
-</html>
+    <h1> eBay Home Page </h1>
 
+    <h3>Welcome userid {{ user }} </h3>
+    Log in value {{session['login']}}
+    session test {{session['username']}}
+
+{% endblock %}

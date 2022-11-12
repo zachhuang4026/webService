@@ -1,5 +1,5 @@
 import sys
-from flask import Flask, render_template, request, jsonify, make_response, redirect, url_for
+from flask import Flask, render_template, request, jsonify, make_response, redirect, url_for, session
 from functools import wraps
 import jwt
 from datetime import datetime, timedelta
@@ -88,6 +88,7 @@ def login():
             callback = url_for('index')
         response = make_response(redirect(callback))
         response.set_cookie('x-access-token', token)
+        session['login'] = True # Set session value to show logged in info
         return response # Response if token is valid
 
     return render_template('login.html') # Response for GET
@@ -96,6 +97,7 @@ def login():
 def logout():
     response = make_response(redirect(url_for('index')))
     response.delete_cookie('x-access-token')
+    session['login'] = False
     return response
 
 ## eBay Routes
@@ -107,6 +109,7 @@ def index(userid):
         user = 'guest'
     else:
         user = userid
+    session['username'] = 'username'
     return render_template('home.html', user=user)
 
 @app.route('/cart')
