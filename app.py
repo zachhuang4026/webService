@@ -111,8 +111,13 @@ def index(userid):
         user = userid
     session['username'] = 'username'
 
-    # ToDo - make call to Auction microservice to get list of auctions in progress
-    return render_template('home.html', user=user)
+    if app.config['DEBUG'] == True:
+        # Dummy list of items
+        listings = [{'auction_id': x, 'item_name': f'Item {x}', 'price': x} for x in range(1,5)]
+    else: # ToDo - make call to Auction microservice to get list of auctions in progress   
+        pass
+    
+    return render_template('home.html', user=user, active_listings=listings)
 
 @app.route('/cart')
 @token_required
