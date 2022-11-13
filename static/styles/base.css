@@ -18,4 +18,14 @@
     border: 5px solid gray;
     margin: 0;
 }
+.search_bar_text {
+    font-size: 20px;
+    height: 30px;
+    width: 350px;
+}
+.search_bar_button {
+    font-size: 20px;
+    height: 30px; 
+    width: 90px; 
+}
 

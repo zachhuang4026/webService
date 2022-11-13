@@ -3,9 +3,19 @@
 
     <h1> eBay Home Page </h1>
 
-    <h3>Welcome userid {{ user }} </h3>
-    Log in value {{session['login']}}
-    session test {{session['username']}}
+    <div class="auction_container">
+        <div style="width: 35%;">
+            <h3>Welcome userid {{ user }} </h3>
+            Log in value {{session['login']}}
+            session test {{session['username']}}
+        </div>
+        <div style="flex-grow: 1;">
+            <form> <!-- ToDo: action="{{ url_for("login" )}}" method="post" -->
+                <input type="text" class="search_bar_text" placeholder="What are you looking for?">
+                <input type="submit" class="search_bar_button" value="Search">
+            </form>
+        </div>
+    </div>
 
     {% for listing in active_listings %}
         <div class="auction_container">
