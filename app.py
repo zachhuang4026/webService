@@ -139,9 +139,26 @@ def viewAuction(listing_id=None):
 def createAuction():
     return render_template('create_auction.html')
 
-@app.route('/create/account')
+@app.route('/create/account', methods =['POST', 'GET'])
 def createAccount():
-    return render_template('create_account.html')
+    # Handle form input
+    if request.method == "POST":
+        name = request.form.get('name')
+        username = request.form.get('email')
+        password = request.form.get('password')
+        
+        if app.config['DEBUG'] == True: # Skip microservice communication
+            return render_template('success.html',
+            context_text="Account successfully created. Login to account now:",
+            redirect_link='/login',
+            redirect_text='Login')
+        else:
+            # ToDo - Create Account w/ User Microservice
+            # Handle response from microservice for success/failure
+            pass
+
+    else: # GET - render form
+        return render_template('create_account.html')
 
 # Update Account
 # Delete Account
@@ -149,6 +166,7 @@ def createAccount():
 # Checkout
 # Admin - suspend/delete users
 # Admin - edit listings
+
 
 ## Dummy routes for testing JWT
 @app.route('/protected')
