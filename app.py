@@ -160,6 +160,11 @@ def createAccount():
     else: # GET - render form
         return render_template('create_account.html')
 
+@app.route('/account')
+@token_required
+def accountInfo(userid):
+    return render_template('account.html', user=userid)
+
 # Update Account
 # Delete Account
 # Bid success landing page
