@@ -110,6 +110,8 @@ def index(userid):
     else:
         user = userid
     session['username'] = 'username'
+
+    # ToDo - make call to Auction microservice to get list of auctions in progress
     return render_template('home.html', user=user)
 
 @app.route('/cart')

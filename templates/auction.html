@@ -3,4 +3,21 @@
 
     <h1> Auction {{listing_id}}</h1>
 
+    <div class="auction_container">
+        <div class = "auction_image" style="height: 300px; width: 15%;"> 
+            <img src="../static/auction_default.JPG" style="max-width: 100%; max-height: 100%;">
+        </div>
+        <div class="auction_details">
+            <h2> Item Name </h2>
+            <h4> Auction End time </h4>
+            <h4> Price </h4>
+            <form> <!-- ToDo - Add action for bid submit action="/action_page.php" -->
+                <label for="bid">Bid:</label><br>
+                <input type="text" id="bid" name="bid">
+                <input type="submit" value="Submit">
+            </form>
+            <p> Additional details about the item here </p>
+        </div>
+    </div>
+
 {% endblock %}
