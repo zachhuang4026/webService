@@ -3,4 +3,28 @@
 
     <h1> Userid {{user}}'s Shopping Cart </h1>
 
+    {% for item in cart_items %}
+        <div class="auction_container">
+            <div class = "auction_image"> 
+                <a href="/auction/{{ item['auction_id'] }}"> <!-- ToDo: Link this based on auction_id -->
+                    <img src="../static/auction_default.JPG" style="max-width: 100%; max-height: 100%;">
+                </a>
+            </div>
+            <div class="auction_details">
+                <a href="/auction/{{ item['auction_id'] }}"> <!-- ToDo: Link this based on auction_id -->
+                    <h3> {{ item['item_name'] }} </h3>
+                </a>
+                <h4> ${{ item['price'] }} </h4>
+            </div>
+        </div>
+    {% endfor %}
+    <div class="auction_container">
+        <h3> Total Price: ${{ total_price }} </h3>
+    </div>
+
+    <form action="{{ url_for("checkout" )}}" method="post">
+        <input type="submit" value="Checkout">
+    </form>
+
+
 {% endblock %}

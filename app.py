@@ -119,12 +119,29 @@ def index(userid):
     
     return render_template('home.html', user=user, active_listings=listings)
 
-@app.route('/cart')
+@app.route('/cart', methods =['POST', 'GET'])
 @token_required
 def viewCart(userid):
     # ToDo - get data from Shopping microservice
     # list of items and item info
-    return render_template('cart.html', user=userid)
+    if app.config['DEBUG'] == True:
+        # Dummy list of items
+        items = [{'auction_id': x, 'item_name': f'Item {x}', 'price': x} for x in range(1,5)]
+        total_price = sum([x['price'] for x in items])
+    else: # ToDo - make call to Auction microservice to get list of auctions in progress   
+        pass
+
+    return render_template('cart.html', user=userid, cart_items=items, total_price=total_price)
+
+@app.route('/checkout', methods =['POST', 'GET'])
+@token_required
+def checkout(userid):
+    # ToDo - Delete the items shown in cart
+    
+    return render_template('success.html',
+            context_text="Checkout complete",
+            redirect_link='/',
+            redirect_text='Return home')
 
 @app.route('/watchlist')
 @token_required
