@@ -1,0 +1,55 @@
+from functools import wraps
+from flask import  request, make_response, redirect, url_for, render_template
+import jwt
+
+class TokenDecorator:
+    def __init__(self, token='required', profile='user'):
+        self.token = token
+        self.profile = profile
+
+    def __call__(self, f):
+        @wraps(f)
+        def decorated_adam(*args, **kwargs):
+            # Decorator logic
+            
+            # Check if JWT is present in cookies or request header 
+            token = None
+            if 'x-access-token' in request.cookies:
+                token = request.cookies['x-access-token']
+            elif 'x-access-token' in request.headers:
+                token = request.headers['x-access-token']
+            print(token)
+
+            # Scenario 1: No token provided
+            if not token:
+                if self.token == 'optional':
+                    return f(userid=None, *args, **kwargs)
+                else:
+                    response = make_response(redirect(url_for('login')))
+                    response.set_cookie('callback', url_for(f.__name__)) # set cookie to return to intended page
+                    return response
+            
+            try: # Scenario 2/3: Token is provided - check if valid, access profile
+                # Decode payload to fetch the stored details
+                # ToDo - import secret key from central config
+                data = jwt.decode(token, 'your secret key', algorithms=["HS256"]) # app.config['SECRET_KEY'] = 'your secret key'
+                userid = data['userid']
+                is_admin = data['is_admin']
+            except: # Scenario 3: Token is invalid
+                response = make_response(redirect(url_for('login')))
+                response.set_cookie('callback', url_for(f.__name__)) # set cookie to return to intended page
+                return response
+            
+            # Scenario 4: Token is valid, but admin required and not authorized
+            if self.profile == 'admin' and not is_admin:
+                # ToDo - redirect to failure page
+                return render_template('success.html', context_text="Access forbidden. User is not Admin",
+                    redirect_link='foo',
+                    redirect_text='bar')
+                # response = make_response(redirect(url_for('login')))
+                # response.set_cookie('callback', url_for(f.__name__)) # set cookie to return to intended page
+                # return response
+
+            # Scenario 5: User is authenticated - return context to routes
+            return f(userid, *args, **kwargs) # f(current_user, *args, **kwargs)
+        return decorated_adam

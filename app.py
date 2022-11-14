@@ -14,56 +14,57 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
 app.config['DEBUG'] = True
 
+from decorators import TokenDecorator # #token_required, token_optional,
 # https://www.geeksforgeeks.org/using-jwt-for-user-authentication-in-flask/
 # decorator for verifying the JWT
-def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = None
-        # jwt is passed in the request cookies or header
-        if 'x-access-token' in request.cookies:
-            token = request.cookies['x-access-token']
-        elif 'x-access-token' in request.headers:
-            token = request.headers['x-access-token']
-        print(token)
+# def #token_required(f):
+#     @wraps(f)
+#     def decorated(*args, **kwargs):
+#         token = None
+#         # jwt is passed in the request cookies or header
+#         if 'x-access-token' in request.cookies:
+#             token = request.cookies['x-access-token']
+#         elif 'x-access-token' in request.headers:
+#             token = request.headers['x-access-token']
+#         print(token)
 
-        if not token: # No token provided
-            response = make_response(redirect(url_for('login')))
-            response.set_cookie('callback', url_for(f.__name__)) # set cookie to return to intended page
-            return response
+#         if not token: # No token provided
+#             response = make_response(redirect(url_for('login')))
+#             response.set_cookie('callback', url_for(f.__name__)) # set cookie to return to intended page
+#             return response
   
-        try:
-            # decoding the payload to fetch the stored details
-            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-            userid = data['userid']
+#         try:
+#             # decoding the payload to fetch the stored details
+#             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+#             userid = data['userid']
         
-        except: # If not logged in, redirect
-            response = make_response(redirect(url_for('login')))
-            response.set_cookie('callback', url_for(f.__name__)) # set cookie to return to intended page
-            return response
-        # returns the current logged in users context to the routes
-        return f(userid, *args, **kwargs) # f(current_user, *args, **kwargs)
-    return decorated
+#         except: # If not logged in, redirect
+#             response = make_response(redirect(url_for('login')))
+#             response.set_cookie('callback', url_for(f.__name__)) # set cookie to return to intended page
+#             return response
+#         # returns the current logged in users context to the routes
+#         return f(userid, *args, **kwargs) # f(current_user, *args, **kwargs)
+#     return decorated
 
-def token_optional(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = None
-        # jwt is passed in the request cookies or header
-        if 'x-access-token' in request.cookies:
-            token = request.cookies['x-access-token']
-        elif 'x-access-token' in request.headers:
-            token = request.headers['x-access-token']
-        print(token)
+# def token_optional(f):
+#     @wraps(f)
+#     def decorated(*args, **kwargs):
+#         token = None
+#         # jwt is passed in the request cookies or header
+#         if 'x-access-token' in request.cookies:
+#             token = request.cookies['x-access-token']
+#         elif 'x-access-token' in request.headers:
+#             token = request.headers['x-access-token']
+#         print(token)
 
-        try: # if token provided and valid
-            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-            userid = data['userid']
-        except: # No token
-            userid = None
-        # returns the current logged in users context to the routes
-        return f(userid, *args, **kwargs) # f(current_user, *args, **kwargs)
-    return decorated
+#         try: # if token provided and valid
+#             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+#             userid = data['userid']
+#         except: # No token
+#             userid = None
+#         # returns the current logged in users context to the routes
+#         return f(userid, *args, **kwargs) # f(current_user, *args, **kwargs)
+#     return decorated
 
 @app.route('/login', methods =['POST', 'GET'])
 def login():
@@ -80,7 +81,7 @@ def login():
         
         # Dummy Function for Debugging - Create and set random token
         if app.config['DEBUG'] == True: 
-            token = jwt.encode({'userid':19, 'exp':datetime.utcnow() + timedelta(minutes=2)}, app.config['SECRET_KEY'])
+            token = jwt.encode({'userid':19, 'is_admin':True, 'exp':datetime.utcnow() + timedelta(minutes=2)}, app.config['SECRET_KEY'])
 
         # Get redirect route from cookie
         callback = request.cookies.get('callback')
@@ -103,7 +104,7 @@ def logout():
 ## eBay Routes
 
 @app.route('/')
-@token_optional
+@TokenDecorator(token='optional')
 def index(userid):
     if userid is None:
         user = 'guest'
@@ -120,7 +121,7 @@ def index(userid):
     return render_template('home.html', user=user, active_listings=listings)
 
 @app.route('/cart', methods =['POST', 'GET'])
-@token_required
+@TokenDecorator(token='required')
 def viewCart(userid):
     # ToDo - get data from Shopping microservice
     # list of items and item info
@@ -133,8 +134,8 @@ def viewCart(userid):
 
     return render_template('cart.html', user=userid, cart_items=items, total_price=total_price)
 
-@app.route('/checkout', methods =['POST', 'GET'])
-@token_required
+@app.route('/checkout', methods =['POST', 'GET']) # ToDo - does this take GET?
+@TokenDecorator(token='required')
 def checkout(userid):
     # ToDo - Delete the items shown in cart
     
@@ -144,7 +145,7 @@ def checkout(userid):
             redirect_text='Return home')
 
 @app.route('/watchlist')
-@token_required
+@TokenDecorator(token='required')
 def viewWatchlist(userid):
     # ToDo - get data from Shopping microservice
     # list of items and item info
@@ -157,7 +158,7 @@ def viewAuction(listing_id=None):
     return render_template('auction.html', listing_id=listing_id)
 
 @app.route('/create/auction')
-@token_required
+@TokenDecorator(token='required')
 def createAuction():
     return render_template('create_auction.html')
 
@@ -183,17 +184,17 @@ def createAccount():
         return render_template('create_account.html')
 
 @app.route('/account')
-@token_required
+@TokenDecorator(token='required')
 def accountInfo(userid):
     return render_template('account.html', user=userid)
 
 @app.route('/admin')
-@token_required # ToDo - implement admin_required
+@TokenDecorator(token='required', profile='admin')
 def admin_homepage(userid):
     return render_template('admin.html', user=userid)
 
 @app.route('/admin/users', methods=['POST', 'GET'])
-@token_required # ToDo - implement admin_required
+@TokenDecorator(token='required', profile='admin')
 def admin_edit_users(userid):
     if request.method == 'POST':
         # ToDo - Communicate with User Microservice
@@ -201,7 +202,7 @@ def admin_edit_users(userid):
     return render_template('admin_users.html', user=userid)
 
 @app.route('/admin/auctions', methods=['POST', 'GET'])
-@token_required # ToDo - implement admin_required
+@TokenDecorator(token='required', profile='admin')
 def admin_edit_auctions(userid):
     if request.method == 'POST':
         # ToDo - Communicate with Auction Microservice
@@ -218,7 +219,7 @@ def admin_edit_auctions(userid):
 
 ## Dummy routes for testing JWT
 @app.route('/protected')
-@token_required
+@TokenDecorator(token='required')
 def protected(userid):
     print(request.cookies.get('x-access-token'))
     return 'Protected page'

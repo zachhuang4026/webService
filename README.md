@@ -27,3 +27,10 @@ token = jwt.encode({'public_id':19, 'exp':datetime.utcnow() + timedelta(minutes=
 ```
 - Include in request header as {'x-access-token': token}
 
+Python decorator with arguments
+https://stackoverflow.com/questions/10176226/how-do-i-pass-extra-arguments-to-a-python-decorator
+
+# ToDo
+- Centralize success/failure landing pages
+- Show admin link in navbar when correct permissions
+- Cleanup decorators
