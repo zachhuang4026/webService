@@ -187,6 +187,27 @@ def createAccount():
 def accountInfo(userid):
     return render_template('account.html', user=userid)
 
+@app.route('/admin')
+@token_required # ToDo - implement admin_required
+def admin_homepage(userid):
+    return render_template('admin.html', user=userid)
+
+@app.route('/admin/users', methods=['POST', 'GET'])
+@token_required # ToDo - implement admin_required
+def admin_edit_users(userid):
+    if request.method == 'POST':
+        # ToDo - Communicate with User Microservice
+        pass
+    return render_template('admin_users.html', user=userid)
+
+@app.route('/admin/auctions', methods=['POST', 'GET'])
+@token_required # ToDo - implement admin_required
+def admin_edit_auctions(userid):
+    if request.method == 'POST':
+        # ToDo - Communicate with Auction Microservice
+        pass
+    return render_template('admin_auctions.html', user=userid)
+
 # Update Account
 # Delete Account
 # Bid success landing page

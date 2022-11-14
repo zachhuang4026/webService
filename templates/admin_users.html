@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1> Admin Control Page - User Access Modifications</h1>
+    <form action="{{ url_for("admin_edit_users" )}}" method="post">
+        <label for="user_id">user_id:</label>
+        <input type="text" id="user_id" name="user_id" required><br>
+
+        <label for="action">Action:</label>
+        <select name="action" id="action" required>
+            <option value="Suspend">Suspend</option>
+            <option value="Delete">Delete</option>
+            <option value="Make_Admin">Make Admin</option>
+        </select> <br>
+        
+        <input type="submit" value="Submit">
+      </form>
+
+{% endblock %}
