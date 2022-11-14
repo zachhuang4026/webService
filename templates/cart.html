@@ -3,24 +3,37 @@
 
     <h1> Userid {{user}}'s Shopping Cart </h1>
 
-    {% for item in cart_items %}
-        <div class="auction_container">
-            <div class = "auction_image"> 
-                <a href="/auction/{{ item['auction_id'] }}"> <!-- ToDo: Link this based on auction_id -->
-                    <img src="../static/auction_default.JPG" style="max-width: 100%; max-height: 100%;">
-                </a>
-            </div>
-            <div class="auction_details">
-                <a href="/auction/{{ item['auction_id'] }}"> <!-- ToDo: Link this based on auction_id -->
+    <table id="table" class="item_table">
+        <tr>
+            <th> </th>
+            <th> Item </th>
+            <th> Price </th>
+        </tr>
+
+        {% for item in cart_items %}
+        <tr> 
+            <td>  <!-- Item Picture -->
+                    <a href="/auction/{{ item['auction_id'] }}">
+                        <img src="../static/auction_default.JPG" style="height: 150px; padding: 3px;">
+                    </a>
+            </td>
+            <td> <!-- Item Name -->
+                <a href="/auction/{{ item['auction_id'] }}">
                     <h3> {{ item['item_name'] }} </h3>
                 </a>
-                <h4> ${{ item['price'] }} </h4>
-            </div>
-        </div>
-    {% endfor %}
-    <div class="auction_container">
-        <h3> Total Price: ${{ total_price }} </h3>
-    </div>
+            </td>
+            <td> <!-- Item Price -->
+                <h3> ${{ item['price'] }} </h3>
+            </td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td> <h3> Total Price </h3></td>
+            <td></td>
+            <td><h3> ${{ total_price }} </h3></td>
+        </tr>
+
+    </table>
 
     <form action="{{ url_for("checkout" )}}" method="post">
         <input type="submit" value="Checkout">

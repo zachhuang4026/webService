@@ -1,9 +1,12 @@
-.auction_container {
+/* Div for side-by-side formatting of objects */
+.split_page {
     display: flex;
     /* height: 300px; */
     border: 5px dashed red;
     padding: 5px;
 }
+
+/* Divs for formatting auction elements */
 .auction_details {
     flex-grow: 1;
     width: 200px;
@@ -18,6 +21,8 @@
     border: 5px solid gray;
     margin: 0;
 }
+
+/* Search Bar formatting */
 .search_bar_text {
     font-size: 20px;
     height: 30px;
@@ -29,3 +34,21 @@
     width: 90px; 
 }
 
+/* Formatting for Item Tables */
+th {
+    cursor: pointer;
+    width: 200px;
+}
+tr{
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+}
+td {
+    text-align: center
+}
+
+.item_table{
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+}
