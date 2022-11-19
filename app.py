@@ -164,10 +164,29 @@ def viewAuction(listing_id=None):
     # image, price, end time, details
     return render_template('auction.html', listing_id=listing_id)
 
-@app.route('/create/auction')
+@app.route('/create/auction', methods=['POST', 'GET'])
 @TokenDecorator(token='required')
-def createAuction():
-    return render_template('create_auction.html')
+def createAuction(userid):
+    if request.method == 'POST':
+        # ToDo - post results directly to API gateway?
+        # ToDo - handling of timezones, listing/end times etc.
+        print('Received results from create auction form')
+        print(request.form.get('item_name'))
+        print(request.form.get('listing_type'))
+        print(request.form.get('start_time'))
+        print(request.form.get('end_time'))
+        return 'results'
+    
+    # On GET
+    ts = datetime.now()
+    date_str = str(ts.year) + '-' + str(ts.month) + '-' + str(ts.day)
+
+    # Item Categories
+    if app.config['DEBUG'] == True:
+        category_lst = ['Clothing', 'Electronics', 'Books']
+    # Otherwise, get category info from API Gateway
+
+    return render_template('create_auction.html', today=date_str, item_categories=category_lst)
 
 @app.route('/create/account', methods =['POST', 'GET'])
 def createAccount():

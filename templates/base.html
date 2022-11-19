@@ -13,6 +13,7 @@
             <a href="/">Home</a>
             <a class="{% block nav_item_cart %}{% endblock nav_item_cart %}"href="/cart">Shopping Cart</a>
             <a class="{% block nav_item_watchlist %}{% endblock nav_item_watchlist %}" href="/watchlist">Watchlist</a>
+            <a class="{% block nav_item_create_auction %}{% endblock nav_item_create_auction %}" href="/create/auction">List Item</a>
             {% if session['is_admin'] == true %}
             <a class="{% block nav_item_admin %}{% endblock nav_item_admin %}" href="/admin">Admin</a>
             {% endif %}
