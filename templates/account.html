@@ -5,4 +5,20 @@
 
     <h1> Userid {{user}}'s Account Information </h1>
 
+    
+    <form action="{{ url_for("accountInfo" )}}" method="post">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" value="{{ account_info['name'] }}" {% if update == false %} disabled {% else %} required {% endif %} ><br></br>
+        <label for="email">Email (username):</label>
+        <input type="text" id="email" name="email" value="{{ account_info['email'] }}" {% if update == false %} disabled {% else %} required {% endif %} ><br></br>
+        <label for="password">Password:</label>
+        <input type="text" id="password" name="password" value="{{ account_info['password'] }}" {% if update == false %} disabled {% else %} required {% endif %}><br></br>
+        
+        {% if update == false %}
+        <input type="submit" id="button" value="Update">
+        {% else %}
+        <input type="submit" id="button" value="Save">
+        {% endif %}
+      </form>
+
 {% endblock %}

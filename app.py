@@ -219,10 +219,26 @@ def createAccount():
     else: # GET - render form
         return render_template('create_account.html')
 
-@app.route('/account')
+@app.route('/account', methods=['POST','GET'])
 @TokenDecorator(token='required')
 def accountInfo(userid):
-    return render_template('account.html', user=userid)
+    if app.config['DEBUG'] == True:
+        # use dummy info
+        account_info = {'name': 'User', 'email': 'user@gmail.com', 'password': 'pass'}
+    else:
+        pass
+        # Get account info from API Gateway/User Service
+
+    if request.method == 'POST':
+        print(request.form.get('email'))
+        print('Here')
+        if request.form.get('email') is None: # Conversion from viewing -> updating info
+            return render_template('account.html', user=userid, account_info=account_info, update=True)
+        else:
+            # Update info via API
+            return redirect(url_for('accountInfo'))
+
+    return render_template('account.html', user=userid, account_info=account_info, update=False)
 
 @app.route('/admin')
 @TokenDecorator(token='required', profile='admin')
