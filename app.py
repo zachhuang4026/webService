@@ -4,9 +4,6 @@ from functools import wraps
 import jwt
 from datetime import datetime, timedelta
 
-# Alternative approach to JWT
-# from flask_jwt_extended import create_access_token
-
 app = Flask(__name__)
 
 # Define secret key for encoding/decoding JWT tokens
@@ -14,57 +11,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
 app.config['DEBUG'] = True
 
-from decorators import TokenDecorator # #token_required, token_optional,
-# https://www.geeksforgeeks.org/using-jwt-for-user-authentication-in-flask/
-# decorator for verifying the JWT
-# def #token_required(f):
-#     @wraps(f)
-#     def decorated(*args, **kwargs):
-#         token = None
-#         # jwt is passed in the request cookies or header
-#         if 'x-access-token' in request.cookies:
-#             token = request.cookies['x-access-token']
-#         elif 'x-access-token' in request.headers:
-#             token = request.headers['x-access-token']
-#         print(token)
-
-#         if not token: # No token provided
-#             response = make_response(redirect(url_for('login')))
-#             response.set_cookie('callback', url_for(f.__name__)) # set cookie to return to intended page
-#             return response
-  
-#         try:
-#             # decoding the payload to fetch the stored details
-#             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-#             userid = data['userid']
-        
-#         except: # If not logged in, redirect
-#             response = make_response(redirect(url_for('login')))
-#             response.set_cookie('callback', url_for(f.__name__)) # set cookie to return to intended page
-#             return response
-#         # returns the current logged in users context to the routes
-#         return f(userid, *args, **kwargs) # f(current_user, *args, **kwargs)
-#     return decorated
-
-# def token_optional(f):
-#     @wraps(f)
-#     def decorated(*args, **kwargs):
-#         token = None
-#         # jwt is passed in the request cookies or header
-#         if 'x-access-token' in request.cookies:
-#             token = request.cookies['x-access-token']
-#         elif 'x-access-token' in request.headers:
-#             token = request.headers['x-access-token']
-#         print(token)
-
-#         try: # if token provided and valid
-#             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-#             userid = data['userid']
-#         except: # No token
-#             userid = None
-#         # returns the current logged in users context to the routes
-#         return f(userid, *args, **kwargs) # f(current_user, *args, **kwargs)
-#     return decorated
+from decorators import TokenDecorator
 
 @app.route('/login', methods =['POST', 'GET'])
 def login():
@@ -82,7 +29,7 @@ def login():
         # Dummy Function for Debugging - Create and set random token
         if app.config['DEBUG'] == True: 
             account_id = 19
-            is_admin = False
+            is_admin = True
             token = jwt.encode({'userid':account_id, 'is_admin':is_admin, 'exp':datetime.utcnow() + timedelta(minutes=2)}, app.config['SECRET_KEY'])
 
         # Get redirect route from cookie

@@ -2,7 +2,10 @@ from functools import wraps
 from flask import  request, make_response, redirect, url_for, render_template
 import jwt
 
+# https://www.geeksforgeeks.org/using-jwt-for-user-authentication-in-flask/
+
 class TokenDecorator:
+    # https://stackoverflow.com/questions/10176226/how-do-i-pass-extra-arguments-to-a-python-decorator
     def __init__(self, token='required', profile='user'):
         self.token = token
         self.profile = profile
@@ -43,12 +46,9 @@ class TokenDecorator:
             # Scenario 4: Token is valid, but admin required and not authorized
             if self.profile == 'admin' and not is_admin:
                 # ToDo - redirect to failure page
-                return render_template('success.html', context_text="Access forbidden. User is not Admin",
+                return render_template('landing.html', context_text="Access forbidden. User is not Admin",
                     redirect_link='foo',
                     redirect_text='bar')
-                # response = make_response(redirect(url_for('login')))
-                # response.set_cookie('callback', url_for(f.__name__)) # set cookie to return to intended page
-                # return response
 
             # Scenario 5: User is authenticated - return context to routes
             return f(userid, *args, **kwargs) # f(current_user, *args, **kwargs)
