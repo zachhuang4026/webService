@@ -1,13 +1,20 @@
-<p>Enter User Information:</p>
+{% extends "base.html" %}
+{% block nav_item_create_account %}active{% endblock nav_item_create_account %}
 
-<form action="{{ url_for("createAccount" )}}" method="post">
-    <label for="name">Name:</label><br>
-    <input type="text" id="name" name="name" placeholder="John Doe"><br></br>
-    <label for="email">Email (username):</label><br>
-    <input type="text" id="email" name="email" placeholder="johndoe@gmail.com"><br></br>
-    <label for="password">Password:</label><br>
-    <input type="password" id="password" name="password"><br></br>
-    <!-- <label for="verify_password">Verify Password:</label><br>
-    <input type="password" id="verify_password" name="verify_password"><br></br> -->
-    <input type="submit" value="Submit">
+{% block content %}
+
+  <p>Enter User Information:</p>
+
+  <form action="{{ url_for("createAccount" )}}" method="post">
+      <label for="name">Name:</label><br>
+      <input type="text" id="name" name="name" placeholder="John Doe"><br></br>
+      <label for="email">Email (username):</label><br>
+      <input type="text" id="email" name="email" placeholder="johndoe@gmail.com"><br></br>
+      <label for="password">Password:</label><br>
+      <input type="password" id="password" name="password"><br></br>
+      <!-- <label for="verify_password">Verify Password:</label><br>
+      <input type="password" id="verify_password" name="verify_password"><br></br> -->
+      <input type="submit" value="Submit">
   </form>
+
+{% endblock %}
