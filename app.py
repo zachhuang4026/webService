@@ -139,7 +139,8 @@ def viewCart(userid):
 def checkout(userid):
     # ToDo - Delete the items shown in cart
     
-    return render_template('success.html',
+    return render_template('landing.html',
+            header="Success!",
             context_text="Checkout complete",
             redirect_link='/',
             redirect_text='Return home')
@@ -171,7 +172,8 @@ def createAccount():
         password = request.form.get('password')
         
         if app.config['DEBUG'] == True: # Skip microservice communication
-            return render_template('success.html',
+            return render_template('landing.html',
+            header='Success!',
             context_text="Account successfully created. Login to account now:",
             redirect_link='/login',
             redirect_text='Login')
