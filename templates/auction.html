@@ -3,7 +3,7 @@
 
     <h1> Auction {{listing_id}}</h1>
 
-    <div class="auction_container">
+    <div class="split_page">
         <div class = "auction_image" style="height: 300px; width: 15%;"> 
             <img src="../static/auction_default.JPG" style="max-width: 100%; max-height: 100%;">
         </div>
@@ -18,6 +18,9 @@
             </form>
             <p> Additional details about the item here </p>
         </div>
+    </div>
+    <div>
+        <a href="/reportItem?listing_id={{ listing_id }}">Report this Item</a>
     </div>
 
 {% endblock %}

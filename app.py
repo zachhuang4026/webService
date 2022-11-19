@@ -164,6 +164,15 @@ def viewAuction(listing_id=None):
     # image, price, end time, details
     return render_template('auction.html', listing_id=listing_id)
 
+@app.route('/reportItem')
+@TokenDecorator(token='required')
+def reportItem(userid):
+    # ToDo - handle POST
+    # ToDo - get item Name
+    listing_id = request.args.get('listing_id')
+    return render_template('report_item.html', listing_id=listing_id)
+
+
 @app.route('/create/auction', methods=['POST', 'GET'])
 @TokenDecorator(token='required')
 def createAuction(userid):
