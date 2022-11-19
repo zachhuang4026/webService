@@ -81,7 +81,9 @@ def login():
         
         # Dummy Function for Debugging - Create and set random token
         if app.config['DEBUG'] == True: 
-            token = jwt.encode({'userid':19, 'is_admin':True, 'exp':datetime.utcnow() + timedelta(minutes=2)}, app.config['SECRET_KEY'])
+            account_id = 19
+            is_admin = False
+            token = jwt.encode({'userid':account_id, 'is_admin':is_admin, 'exp':datetime.utcnow() + timedelta(minutes=2)}, app.config['SECRET_KEY'])
 
         # Get redirect route from cookie
         callback = request.cookies.get('callback')
@@ -90,6 +92,8 @@ def login():
         response = make_response(redirect(callback))
         response.set_cookie('x-access-token', token)
         session['login'] = True # Set session value to show logged in info
+        if is_admin:
+            session['is_admin'] = True
         return response # Response if token is valid
 
     return render_template('login.html') # Response for GET
@@ -97,8 +101,10 @@ def login():
 @app.route('/logout', methods =['GET'])
 def logout():
     response = make_response(redirect(url_for('index')))
+    # Clear cookies and session variables
     response.delete_cookie('x-access-token')
     session['login'] = False
+    session['is_admin'] = False
     return response
 
 ## eBay Routes
