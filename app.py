@@ -59,6 +59,7 @@ def logout():
 @app.route('/')
 @TokenDecorator(token='optional')
 def index(token):
+    
     if token is None:
         user = 'guest'
     else:
@@ -71,7 +72,9 @@ def index(token):
     else: # ToDo - make call to Auction microservice to get list of auctions in progress   
         pass
     
-    return render_template('home.html', user=token, active_listings=listings)
+    response = make_response(render_template('home.html', user=token, active_listings=listings))
+    response.set_cookie('callback', url_for('index'))
+    return response
 
 @app.route('/cart', methods =['POST', 'GET'])
 @TokenDecorator(token='required')
@@ -101,16 +104,22 @@ def checkout(token):
 @app.route('/watchlist', methods=['POST', 'GET'])
 @TokenDecorator(token='required')
 def viewWatchlist(token):
-    if request.method == 'POST':
+
+    if request.method == 'POST': # Handle response back from Add to Watchlist click
         print('******** MAKING POST TO ADD TO WATCHLIST ********')
-        print(request.form.get('token'))
-        print(request.form.get('listing_id'))
+        # Get inputs to relay
+        token = request.form.get('token')
         listing_id = request.form.get('listing_id')
+        print(token)
+        print(listing_id)
+        # Relay to API Gateway
+        # Render template based on response
         return render_template('landing.html',
             header='Success!',
             context_text=f"Item {listing_id} successfully added to watchlist. View now:",
             redirect_link='/watchlist',
             redirect_text='Watchlist')
+    # GET response
     # ToDo - get data from Shopping microservice
     # list of items and item info
     return render_template('watchlist.html', user=token)
@@ -125,7 +134,10 @@ def viewAuction(token, listing_id=None):
             listing_type = 'buy_now'
         else:
             listing_type = 'auction'
-    return render_template('auction.html', token=token, listing_id=listing_id, listing_type=listing_type)
+    
+    response = make_response(render_template('auction.html', token=token, listing_id=listing_id, listing_type=listing_type))
+    response.set_cookie('callback', url_for('viewAuction', listing_id=listing_id))
+    return response
 
 @app.route('/reportItem')
 @TokenDecorator(token='required')
