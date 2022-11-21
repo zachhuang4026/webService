@@ -3,6 +3,7 @@ from flask import  request, make_response, redirect, url_for, render_template
 import jwt
 
 # https://www.geeksforgeeks.org/using-jwt-for-user-authentication-in-flask/
+# Todo - Get key from config file
 
 class TokenDecorator:
     # https://stackoverflow.com/questions/10176226/how-do-i-pass-extra-arguments-to-a-python-decorator
@@ -12,7 +13,7 @@ class TokenDecorator:
 
     def __call__(self, f):
         @wraps(f)
-        def decorated_adam(*args, **kwargs):
+        def decorated_func(*args, **kwargs):
             # Decorator logic
             
             # Check if JWT is present in cookies or request header 
@@ -26,7 +27,7 @@ class TokenDecorator:
             # Scenario 1: No token provided
             if not token:
                 if self.token == 'optional':
-                    return f(userid=None, *args, **kwargs)
+                    return f(token=None, *args, **kwargs)
                 else:
                     response = make_response(redirect(url_for('login')))
                     response.set_cookie('callback', url_for(f.__name__)) # set cookie to return to intended page
@@ -51,5 +52,5 @@ class TokenDecorator:
                     redirect_text='bar')
 
             # Scenario 5: User is authenticated - return context to routes
-            return f(userid, *args, **kwargs) # f(current_user, *args, **kwargs)
-        return decorated_adam
+            return f(token, *args, **kwargs) # f(current_user, *args, **kwargs)
+        return decorated_func

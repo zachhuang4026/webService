@@ -58,11 +58,11 @@ def logout():
 
 @app.route('/')
 @TokenDecorator(token='optional')
-def index(userid):
-    if userid is None:
+def index(token):
+    if token is None:
         user = 'guest'
     else:
-        user = userid
+        user = token
     session['username'] = 'username'
 
     if app.config['DEBUG'] == True:
@@ -71,11 +71,11 @@ def index(userid):
     else: # ToDo - make call to Auction microservice to get list of auctions in progress   
         pass
     
-    return render_template('home.html', user=user, active_listings=listings)
+    return render_template('home.html', user=token, active_listings=listings)
 
 @app.route('/cart', methods =['POST', 'GET'])
 @TokenDecorator(token='required')
-def viewCart(userid):
+def viewCart(token):
     # ToDo - get data from Shopping microservice
     # list of items and item info
     if app.config['DEBUG'] == True:
@@ -85,11 +85,11 @@ def viewCart(userid):
     else: # ToDo - make call to Auction microservice to get list of auctions in progress   
         pass
 
-    return render_template('cart.html', user=userid, cart_items=items, total_price=total_price)
+    return render_template('cart.html', user=token, cart_items=items, total_price=total_price)
 
 @app.route('/checkout', methods =['POST', 'GET']) # ToDo - does this take GET?
 @TokenDecorator(token='required')
-def checkout(userid):
+def checkout(token):
     # ToDo - Delete the items shown in cart
     
     return render_template('landing.html',
@@ -100,7 +100,7 @@ def checkout(userid):
 
 @app.route('/watchlist', methods=['POST', 'GET'])
 @TokenDecorator(token='required')
-def viewWatchlist(userid):
+def viewWatchlist(token):
     if request.method == 'POST':
         print(request.form.get('listing_id'))
         listing_id = request.form.get('listing_id')
@@ -111,7 +111,7 @@ def viewWatchlist(userid):
             redirect_text='Watchlist')
     # ToDo - get data from Shopping microservice
     # list of items and item info
-    return render_template('watchlist.html', user=userid)
+    return render_template('watchlist.html', user=token)
 
 @app.route('/auction/<listing_id>')
 def viewAuction(listing_id=None):
@@ -126,7 +126,7 @@ def viewAuction(listing_id=None):
 
 @app.route('/reportItem')
 @TokenDecorator(token='required')
-def reportItem(userid):
+def reportItem(token):
     # ToDo - handle POST
     # ToDo - get item Name
     listing_id = request.args.get('listing_id')
@@ -135,7 +135,7 @@ def reportItem(userid):
 
 @app.route('/create/auction', methods=['POST', 'GET'])
 @TokenDecorator(token='required')
-def createAuction(userid):
+def createAuction(token):
     if request.method == 'POST':
         # ToDo - post results directly to API gateway?
         # ToDo - handling of timezones, listing/end times etc.
@@ -181,7 +181,7 @@ def createAccount():
 
 @app.route('/account', methods=['POST','GET'])
 @TokenDecorator(token='required')
-def accountInfo(userid):
+def accountInfo(token):
     if app.config['DEBUG'] == True:
         # use dummy info
         account_info = {'name': 'User', 'email': 'user@gmail.com', 'password': 'pass'}
@@ -193,33 +193,33 @@ def accountInfo(userid):
         print(request.form.get('email'))
         print('Here')
         if request.form.get('email') is None: # Conversion from viewing -> updating info
-            return render_template('account.html', user=userid, account_info=account_info, update=True)
+            return render_template('account.html', user=token, account_info=account_info, update=True)
         else:
             # Update info via API
             return redirect(url_for('accountInfo'))
 
-    return render_template('account.html', user=userid, account_info=account_info, update=False)
+    return render_template('account.html', user=token, account_info=account_info, update=False)
 
 @app.route('/admin')
 @TokenDecorator(token='required', profile='admin')
-def admin_homepage(userid):
-    return render_template('admin.html', user=userid)
+def admin_homepage(token):
+    return render_template('admin.html')
 
 @app.route('/admin/users', methods=['POST', 'GET'])
 @TokenDecorator(token='required', profile='admin')
-def admin_edit_users(userid):
+def admin_edit_users(token):
     if request.method == 'POST':
         # ToDo - Communicate with User Microservice
         pass
-    return render_template('admin_users.html', user=userid)
+    return render_template('admin_users.html')
 
 @app.route('/admin/auctions', methods=['POST', 'GET'])
 @TokenDecorator(token='required', profile='admin')
-def admin_edit_auctions(userid):
+def admin_edit_auctions(token):
     if request.method == 'POST':
         # ToDo - Communicate with Auction Microservice
         pass
-    return render_template('admin_auctions.html', user=userid)
+    return render_template('admin_auctions.html')
 
 # Update Account
 # Delete Account
@@ -232,7 +232,7 @@ def admin_edit_auctions(userid):
 ## Dummy routes for testing JWT
 @app.route('/protected')
 @TokenDecorator(token='required')
-def protected(userid):
+def protected(token):
     print(request.cookies.get('x-access-token'))
     return 'Protected page'
 
