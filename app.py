@@ -109,7 +109,12 @@ def viewWatchlist(userid):
 def viewAuction(listing_id=None):
     # ToDo - get data from Auction microservice
     # image, price, end time, details
-    return render_template('auction.html', listing_id=listing_id)
+    if app.config['DEBUG'] == True:
+        if int(listing_id) % 2 == 0:
+            listing_type = 'buy_now'
+        else:
+            listing_type = 'auction'
+    return render_template('auction.html', listing_id=listing_id, listing_type=listing_type)
 
 @app.route('/reportItem')
 @TokenDecorator(token='required')
