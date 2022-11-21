@@ -26,25 +26,32 @@ class TokenDecorator:
 
             # Scenario 1: No token provided
             if not token:
-                if self.token == 'optional':
+                if self.token == 'optional': # If token is optional, return page
                     return f(token=None, *args, **kwargs)
-                else:
+                else: # Otherwise, redirect to login
                     response = make_response(redirect(url_for('login')))
                     response.set_cookie('callback', url_for(f.__name__)) # set cookie to return to intended page
                     return response
             
-            try: # Scenario 2/3: Token is provided - check if valid, access profile
-                # Decode payload to fetch the stored details
-                # ToDo - import secret key from central config
-                data = jwt.decode(token, 'your secret key', algorithms=["HS256"]) # app.config['SECRET_KEY'] = 'your secret key'
-                userid = data['userid']
-                is_admin = data['is_admin']
-            except: # Scenario 3: Token is invalid
-                response = make_response(redirect(url_for('login')))
-                response.set_cookie('callback', url_for(f.__name__)) # set cookie to return to intended page
-                return response
+            else: # token provided (may be valid or invalid)
+                try: # Scenario 2/3: Token is provided - check if valid, access profile
+                    # Decode payload to fetch the stored details
+                    # ToDo - import secret key from central config
+                    data = jwt.decode(token, 'your secret key', algorithms=["HS256"]) # app.config['SECRET_KEY'] = 'your secret key'
+                    userid = data['userid']
+                    is_admin = data['is_admin']
+                except: # Scenario 3: Token is invalid
+                    if self.token == 'optional': # If token is optional, return to page
+                        return f(token=None, *args, **kwargs)
+                    else: # Token is required - try to build response
+                        response = make_response(redirect(url_for('login')))
+                        try:
+                            response.set_cookie('callback', url_for(f.__name__)) # set cookie to return to intended page
+                        except: # werkzeug.routing.exceptions.BuildError
+                            response.set_cookie('callback', url_for('index'))
+                        return response
             
-            # Scenario 4: Token is valid, but admin required and not authorized
+            # Part 2: Check admin credentials
             if self.profile == 'admin' and not is_admin:
                 # ToDo - redirect to failure page
                 return render_template('landing.html', context_text="Access forbidden. User is not Admin",
