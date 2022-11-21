@@ -98,9 +98,17 @@ def checkout(userid):
             redirect_link='/',
             redirect_text='Return home')
 
-@app.route('/watchlist')
+@app.route('/watchlist', methods=['POST', 'GET'])
 @TokenDecorator(token='required')
 def viewWatchlist(userid):
+    if request.method == 'POST':
+        print(request.form.get('listing_id'))
+        listing_id = request.form.get('listing_id')
+        return render_template('landing.html',
+            header='Success!',
+            context_text=f"Item {listing_id} successfully added to watchlist. View now:",
+            redirect_link='/watchlist',
+            redirect_text='Watchlist')
     # ToDo - get data from Shopping microservice
     # list of items and item info
     return render_template('watchlist.html', user=userid)
