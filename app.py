@@ -102,6 +102,8 @@ def checkout(token):
 @TokenDecorator(token='required')
 def viewWatchlist(token):
     if request.method == 'POST':
+        print('******** MAKING POST TO ADD TO WATCHLIST ********')
+        print(request.form.get('token'))
         print(request.form.get('listing_id'))
         listing_id = request.form.get('listing_id')
         return render_template('landing.html',
@@ -114,7 +116,8 @@ def viewWatchlist(token):
     return render_template('watchlist.html', user=token)
 
 @app.route('/auction/<listing_id>')
-def viewAuction(listing_id=None):
+@TokenDecorator(token='optional')
+def viewAuction(token, listing_id=None):
     # ToDo - get data from Auction microservice
     # image, price, end time, details
     if app.config['DEBUG'] == True:
@@ -122,7 +125,7 @@ def viewAuction(listing_id=None):
             listing_type = 'buy_now'
         else:
             listing_type = 'auction'
-    return render_template('auction.html', listing_id=listing_id, listing_type=listing_type)
+    return render_template('auction.html', token=token, listing_id=listing_id, listing_type=listing_type)
 
 @app.route('/reportItem')
 @TokenDecorator(token='required')
