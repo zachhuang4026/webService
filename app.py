@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, jsonify, make_response, redir
 from functools import wraps
 import jwt
 from datetime import datetime, timedelta
+import requests
 
 app = Flask(__name__)
 
@@ -12,6 +13,18 @@ app.config['SECRET_KEY'] = 'your secret key'
 app.config['DEBUG'] = True
 
 from decorators import TokenDecorator
+
+@app.route('/api')
+def check_api_gateway():
+    api_gateway_ip = '172.20.0.3'
+    api_gateway_port = '80'
+    try:
+        response = requests.get(f'http://{api_gateway_ip}:{api_gateway_port}/').json()
+        status_code = response['status_code']
+    except:
+        status_code = 502
+        response = {'message': 'Bad gateway. API Gateway could not be reached', 'status_code': status_code}
+    return jsonify(response), status_code
 
 @app.route('/login', methods =['POST', 'GET'])
 def login():
