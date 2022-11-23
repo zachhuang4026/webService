@@ -18,6 +18,11 @@ config.read('config.ini')
 
 from decorators import TokenDecorator
 
+def request_builder(endpoint, service, config=config):
+    ip = config[service]['ip']
+    port = config[service]['port']
+    return f'http://{ip}:{port}/{endpoint}'
+
 @app.route('/api')
 def check_api_gateway():
     api_gateway_ip = '172.20.0.3'
@@ -37,18 +42,43 @@ def login():
 
     # Handle form input
     if request.method == "POST":
-        username = request.form.get('email')
+        email = request.form.get('email')
         password = request.form.get('password')
+        print(email, password)
 
+        if None in [email, password]:
+            status_code = 400
+            response = {'message': 'Bad request. Did not contain required values in JSON', 'status_code': status_code}
+            return jsonify(response), status_code
         # ToDo - validate with User Microservice and create token there
         # Make POST to User login service
+        account_info = {'email': email, 'password': password}
         
         # Dummy Function for Debugging - Create and set random token
         if app.config['DEBUG'] == True: 
             account_id = 19
             is_admin = True
             token = jwt.encode({'userid':account_id, 'is_admin':is_admin, 'exp':datetime.utcnow() + timedelta(minutes=2)}, app.config['SECRET_KEY'])
-
+        
+        else:
+            try:
+                url = request_builder('login', 'api_gateway')
+                response = requests.post(url, json=account_info)
+            except:
+                status_code = 502
+                response = {'message': 'Bad gateway. API Gateway could not be reached', 'status_code': status_code}
+                return jsonify(response), status_code
+            
+            if response.status_code == 200:
+                token = response.json().get('token')
+            else:
+                # response = {'message': response.json()['message'], 'status_code': response.status_code}
+                return render_template('landing.html',
+                    header=f"Error: {response.json()['status_code']}",
+                    context_text=response.json()['message'],
+                    redirect_link='/login',
+                    redirect_text='Login')
+        
         # Get redirect route from cookie
         callback = request.cookies.get('callback')
         if callback is None:
