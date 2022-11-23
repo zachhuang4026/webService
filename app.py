@@ -25,10 +25,9 @@ def request_builder(endpoint, service, config=config):
 
 @app.route('/api')
 def check_api_gateway():
-    api_gateway_ip = '172.20.0.3'
-    api_gateway_port = '80'
     try:
-        response = requests.get(f'http://{api_gateway_ip}:{api_gateway_port}/').json()
+        url = request_builder(endpoint='', service='api_gateway')
+        response = requests.get(url).json()
         status_code = response['status_code']
     except:
         status_code = 502
@@ -36,7 +35,7 @@ def check_api_gateway():
     return jsonify(response), status_code
 
 @app.route('/login', methods =['POST', 'GET'])
-def login():
+def login(DEBUG=False):
     # Authenticate user, set token
     resp = None
 
@@ -55,7 +54,7 @@ def login():
         account_info = {'email': email, 'password': password}
         
         # Dummy Function for Debugging - Create and set random token
-        if app.config['DEBUG'] == True: 
+        if DEBUG == True: # Dummy data
             account_id = 19
             is_admin = True
             token = jwt.encode({'userid':account_id, 'is_admin':is_admin, 'exp':datetime.utcnow() + timedelta(minutes=2)}, app.config['SECRET_KEY'])
@@ -86,7 +85,9 @@ def login():
         response = make_response(redirect(callback))
         response.set_cookie('x-access-token', token)
         session['login'] = True # Set session value to show logged in info
-        if is_admin:
+
+        token_data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"]) # Secret key must match secret key used for encoding
+        if token_data['is_admin']:
             session['is_admin'] = True
         return response # Response if token is valid
 
@@ -220,14 +221,14 @@ def createAuction(token):
     return render_template('create_auction.html', today=date_str, item_categories=category_lst)
 
 @app.route('/create/account', methods =['POST', 'GET'])
-def createAccount():
+def createAccount(DEBUG=False):
     # Handle form input
     if request.method == "POST":
         name = request.form.get('name')
         email = request.form.get('email')
         password = request.form.get('password')
         
-        if app.config['DEBUG'] == False: # Skip microservice communication
+        if DEBUG == True: # Skip microservice communication
             return render_template('landing.html',
             header='Success!',
             context_text="Account successfully created. Login to account now:",
