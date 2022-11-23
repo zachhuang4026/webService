@@ -4,6 +4,7 @@ from functools import wraps
 import jwt
 from datetime import datetime, timedelta
 import requests
+import configparser
 
 app = Flask(__name__)
 
@@ -11,6 +12,9 @@ app = Flask(__name__)
 # ToDo - move this to env file
 app.config['SECRET_KEY'] = 'your secret key'
 app.config['DEBUG'] = True
+
+config = configparser.ConfigParser()
+config.read('config.ini')
 
 from decorators import TokenDecorator
 
@@ -190,20 +194,39 @@ def createAccount():
     # Handle form input
     if request.method == "POST":
         name = request.form.get('name')
-        username = request.form.get('email')
+        email = request.form.get('email')
         password = request.form.get('password')
         
-        if app.config['DEBUG'] == True: # Skip microservice communication
+        if app.config['DEBUG'] == False: # Skip microservice communication
             return render_template('landing.html',
             header='Success!',
             context_text="Account successfully created. Login to account now:",
             redirect_link='/login',
             redirect_text='Login')
-        else:
-            # ToDo - Create Account w/ User Microservice
-            # Handle response from microservice for success/failure
-            pass
+        # Create Account w/ User Microservice
+        else: 
+            account_info = {'data': {'name': name, 'email': email, 'password': password}}
+            api_gateway_ip = config['api_gateway']['ip']
+            api_gateway_port = config['api_gateway']['port']
+            try:
+                response = requests.post(f'http://{api_gateway_ip}:{api_gateway_port}/createAccount', json=account_info)
+                
+                if response.status_code == 201:
+                    header='Success!'
+                else:
+                    header='Error ' + str(response.json().get('status_code'))
 
+                return render_template('landing.html',
+                    header=header,
+                    context_text=response.json().get('message'),
+                    redirect_link='/',
+                    redirect_text='Return home')
+                
+            except:
+                status_code = 500
+                response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+                return jsonify(response), status_code
+            
     else: # GET - render form
         return render_template('create_account.html')
 
