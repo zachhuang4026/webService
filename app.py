@@ -263,24 +263,58 @@ def createAccount(DEBUG=False):
 
 @app.route('/account', methods=['POST','GET'])
 @TokenDecorator(token='required')
-def accountInfo(token):
-    if app.config['DEBUG'] == True:
-        # use dummy info
-        account_info = {'name': 'User', 'email': 'user@gmail.com', 'password': 'pass'}
-    else:
-        pass
-        # Get account info from API Gateway/User Service
+def accountInfo(token, DEBUG=False):
+    
+    if request.method == 'GET':
+        if DEBUG == True: # use dummy info
+            account_info = {'name': 'User', 'email': 'user@gmail.com', 'password': 'pass'}
+        else: # Get Account Info from API Gateway
+            url = request_builder('getAccount', 'api_gateway')
+            api_response = requests.get(url, params={'token': token})
+            account_info = api_response.json()['data']
+
+        return render_template('account.html', user=token, account_info=account_info, editable=False)
 
     if request.method == 'POST':
         print(request.form.get('email'))
         print('Here')
         if request.form.get('email') is None: # Conversion from viewing -> updating info
-            return render_template('account.html', user=token, account_info=account_info, update=True)
+            account_info = {'name': request.form.get('hidden_name'),
+                            'email': request.form.get('hidden_email'),
+                            'password': request.form.get('hidden_password')}
+            return render_template('account.html', user=token, account_info=account_info, editable=True)
         else:
-            # Update info via API
-            return redirect(url_for('accountInfo'))
+            # ToDo - Update info via API
+            new_name = request.form.get('name')
+            new_email = request.form.get('email')
+            new_password = request.form.get('password')
 
-    return render_template('account.html', user=token, account_info=account_info, update=False)
+            print(new_name, new_email, new_password )
+            
+            # Make POST to API gateway to update
+            url = request_builder('updateAccount', 'api_gateway')
+            post_body = {'token': token, 'data': {'name': new_name, 'email': new_email, 'password': new_password}}
+            try:
+                api_response = requests.post(url, json=post_body)
+
+                print(api_response.json())
+                
+                if api_response.status_code == 200:
+                    header='Success!'
+                else:
+                    header='Error ' + str(api_response.json().get('status_code'))
+                return render_template('landing.html',
+                    header=header,
+                    context_text=api_response.json().get('message'),
+                    redirect_link='/',
+                    redirect_text='Return home')
+
+            except:
+                status_code = 500
+                response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+                return jsonify(response), status_code
+
+            # return redirect(url_for('accountInfo'))
 
 @app.route('/admin')
 @TokenDecorator(token='required', profile='admin')
