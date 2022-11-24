@@ -440,7 +440,8 @@ def admin_edit_users(token):
 
         if action == 'Delete':
             # ToDo - call delete method    
-            pass
+            post_body = {'token': token, 'data': {'account_id': account_id}}
+            url = request_builder('deleteAccount', 'api_gateway')
         else:
             # Else call update method
             if action == 'Suspend':
@@ -449,6 +450,8 @@ def admin_edit_users(token):
                 post_body = {'token': token, 'data': {'account_id': account_id, 'account_status': 'Active'}}
             elif action == 'Make_Admin':
                 post_body = {'token': token, 'data': {'account_id': account_id, 'is_admin': True}}
+            elif action == 'Remove_Admin':
+                post_body = {'token': token, 'data': {'account_id': account_id, 'is_admin': False}}
             else:
                 pass
             url = request_builder('updateAccount', 'api_gateway')
