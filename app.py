@@ -324,9 +324,43 @@ def admin_homepage(token):
 @app.route('/admin/users', methods=['POST', 'GET'])
 @TokenDecorator(token='required', profile='admin')
 def admin_edit_users(token):
-    if request.method == 'POST':
-        # ToDo - Communicate with Account Microservice
-        pass
+    # On POST, communicate with Account Microservice via API Gateway
+    if request.method == 'POST': 
+        account_id = request.form.get('account_id')
+        action = request.form.get('action')
+        print('Got {account_id}, {action}')
+
+        # ToDo - call delete method
+
+        # Else call update method
+        if action == 'Suspend':
+            post_body = {'token': token, 'data': {'account_id': account_id, 'account_status': 'Suspended'}}
+        elif action == 'Activate':
+            post_body = {'token': token, 'data': {'account_id': account_id, 'account_status': 'Active'}}
+        elif action == 'Make_Admin':
+            post_body = {'token': token, 'data': {'account_id': account_id, 'is_admin': True}}
+        else:
+            pass
+        
+        url = request_builder('updateAccount', 'api_gateway')
+        try:
+            api_response = requests.post(url, json=post_body)
+            print(api_response.json().get('message'))
+            if api_response.status_code == 200:
+                header='Success!'
+            else:
+                header='Error ' + str(api_response.json().get('status_code'))
+            return render_template('landing.html',
+                header=header,
+                context_text=api_response.json().get('message'),
+                redirect_link='/',
+                redirect_text='Return home')
+
+        except:
+            status_code = 500
+            response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+            return jsonify(response), status_code
+
     return render_template('admin_users.html')
 
 @app.route('/admin/auctions', methods=['POST', 'GET'])

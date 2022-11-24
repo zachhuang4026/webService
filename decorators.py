@@ -18,6 +18,7 @@ class TokenDecorator:
             
             # Check if JWT is present in cookies or request header 
             token = None
+            is_admin = False
             if 'x-access-token' in request.cookies:
                 token = request.cookies['x-access-token']
             elif 'x-access-token' in request.headers:
@@ -55,8 +56,8 @@ class TokenDecorator:
             if self.profile == 'admin' and not is_admin:
                 # ToDo - redirect to failure page
                 return render_template('landing.html', context_text="Access forbidden. User is not Admin",
-                    redirect_link='foo',
-                    redirect_text='bar')
+                    redirect_link='/',
+                    redirect_text='Return home')
 
             # Scenario 5: User is authenticated - return context to routes
             return f(token, *args, **kwargs) # f(current_user, *args, **kwargs)

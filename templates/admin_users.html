@@ -2,12 +2,13 @@
 {% block content %}
     <h1> Admin Control Page - User Access Modifications</h1>
     <form action="{{ url_for("admin_edit_users" )}}" method="post">
-        <label for="user_id">user_id:</label>
-        <input type="text" id="user_id" name="user_id" required><br>
+        <label for="account_id">account_id:</label>
+        <input type="text" id="account_id" name="account_id" required><br>
 
         <label for="action">Action:</label>
         <select name="action" id="action" required>
             <option value="Suspend">Suspend</option>
+            <option value="Activate">Make_Active</option>
             <option value="Delete">Delete</option>
             <option value="Make_Admin">Make Admin</option>
         </select> <br>
