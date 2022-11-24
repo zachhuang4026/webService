@@ -13,7 +13,7 @@
             <h4> Current Price: $ {{ listing_info['price'] }} </h4>
             
             {% if listing_info['listing_type'] == "auction" %}
-            <form> <!-- ToDo - Add action for bid submit action="/action_page.php" -->
+            <form action="{{ url_for("buy" )}}" method="post"> <!-- ToDo - Add action for bid submit action="/action_page.php" -->
                 <label for="bid">Bid:</label>
                 <input type="hidden" name="listing_id" value="{{ listing_info['listing_id'] }}">
                 <input type="hidden" name="token" value="{{ token }}">
@@ -21,7 +21,7 @@
                 <input type="submit" value="Submit" {% if token is none %} disabled {% endif %}>
             </form>
             {% else %}
-            <form> <!-- ToDo - Add action for bid submit action="/action_page.php" -->
+            <form action="{{ url_for("buy" )}}" method="post"> <!-- ToDo - Add action for bid submit action="/action_page.php" -->
                 <label for="bid">Buy It Now:</label>
                 <input type="hidden" name="listing_id" value="{{ listing_info['listing_id'] }}">
                 <input type="hidden" name="token" value="{{ token }}">

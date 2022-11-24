@@ -174,6 +174,28 @@ def checkout(token):
             redirect_link='/',
             redirect_text='Return home')
 
+@app.route('/buy', methods=['POST'])
+@TokenDecorator(token='required')
+def buy(token, DEBUG=True):
+    """
+    Receives POST from auction page and either performs bid or add to cart
+    """
+    listing_id = request.form.get('listing_id')
+    token = request.form.get('token')
+    bid = request.form.get('bid') # could be null of buy now listing
+
+    if DEBUG == True:
+        # If auction, return to item. If buy now, view cart
+        return render_template('landing.html',
+            header="Success!",
+            context_text="Bid accepted",
+            redirect_link=f'/auction/{listing_id}',
+            redirect_text='Return to Item')
+    else:
+        # ToDo API Gateway call: Bid or Buy Now
+        return 'Stub return: Communicate with API gateway'
+
+
 @app.route('/watchlist', methods=['POST', 'GET'])
 @TokenDecorator(token='required')
 def viewWatchlist(token):
