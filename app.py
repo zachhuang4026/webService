@@ -213,11 +213,13 @@ def viewAuction(token, listing_id=None, DEBUG=True):
             listing_type = 'buy_now'
         else:
             listing_type = 'auction'
+        price = 4.69
+        listing_info = {'listing_id': listing_id, 'listing_type': listing_type, 'price':price}
     else:
         # ToDo API Gateway call: get auction information
         pass
     
-    response = make_response(render_template('auction.html', token=token, listing_id=listing_id, listing_type=listing_type))
+    response = make_response(render_template('auction.html', token=token, listing_info=listing_info))
     response.set_cookie('callback', url_for('viewAuction', listing_id=listing_id))
     return response
 

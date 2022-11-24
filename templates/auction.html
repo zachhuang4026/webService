@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <h1> Auction {{listing_id}}</h1>
+    <h1> Auction {{ listing_info['listing_id'] }}</h1>
 
     <div class="split_page">
         <div class = "auction_image" style="height: 300px; width: 15%;"> 
@@ -10,20 +10,20 @@
         <div class="auction_details">
             <h2> Item Name </h2>
             <h4> Auction End time </h4>
-            <h4> Price </h4>
+            <h4> Current Price: $ {{ listing_info['price'] }} </h4>
             
-            {% if listing_type == "auction" %}
+            {% if listing_info['listing_type'] == "auction" %}
             <form> <!-- ToDo - Add action for bid submit action="/action_page.php" -->
                 <label for="bid">Bid:</label>
-                <input type="hidden" name="listing_id" value="{{ listing_id }}">
+                <input type="hidden" name="listing_id" value="{{ listing_info['listing_id'] }}">
                 <input type="hidden" name="token" value="{{ token }}">
-                <input type="number" id="bid" name="bid" min="0.01" max="1000000" step="0.01"> <!-- ToDo set min bid based on current value-->
+                <input type="number" id="bid" name="bid" min="{{ listing_info['price'] + 0.01 }}" max="1000000" step="0.01"> <!-- ToDo set min bid based on current value-->
                 <input type="submit" value="Submit" {% if token is none %} disabled {% endif %}>
             </form>
             {% else %}
             <form> <!-- ToDo - Add action for bid submit action="/action_page.php" -->
                 <label for="bid">Buy It Now:</label>
-                <input type="hidden" name="listing_id" value="{{ listing_id }}">
+                <input type="hidden" name="listing_id" value="{{ listing_info['listing_id'] }}">
                 <input type="hidden" name="token" value="{{ token }}">
                 <input type="submit" value="Add to Cart" {% if token is none %} disabled {% endif %}>
             </form>
@@ -35,12 +35,12 @@
     </div>
     <div>
         <form action="{{ url_for("viewWatchlist" )}}" method="post"> <!-- ToDo - Add action for bid submit action="/action_page.php" -->
-            <input type="hidden" name="listing_id" value="{{ listing_id }}">
+            <input type="hidden" name="listing_id" value="{{ listing_info['listing_id'] }}">
             <input type="hidden" name="token" value="{{ token }}">
             <input type="submit" value="Add to Watchlist" {% if token is none %} disabled {% endif %} >
         </form>
 
-        <a href="/reportItem?listing_id={{ listing_id }}">Report this Item</a>
+        <a href="/reportItem?listing_id={{ listing_info['listing_id'] }}">Report this Item</a>
     </div>
 
 {% endblock %}
