@@ -38,7 +38,7 @@ class TokenDecorator:
                     # Decode payload to fetch the stored details
                     # ToDo - import secret key from central config
                     data = jwt.decode(token, 'your secret key', algorithms=["HS256"]) # app.config['SECRET_KEY'] = 'your secret key'
-                    userid = data['userid']
+                    userid = data['account_id']
                     is_admin = data['is_admin']
                 except: # Scenario 3: Token is invalid
                     if self.token == 'optional': # If token is optional, return to page

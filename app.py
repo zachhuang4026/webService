@@ -36,7 +36,7 @@ def check_api_gateway():
 
 @app.route('/login', methods =['POST', 'GET'])
 def login(DEBUG=False):
-    # Authenticate user, set token
+    # Authenticate account, set token
     resp = None
 
     # Handle form input
@@ -49,15 +49,15 @@ def login(DEBUG=False):
             status_code = 400
             response = {'message': 'Bad request. Did not contain required values in JSON', 'status_code': status_code}
             return jsonify(response), status_code
-        # ToDo - validate with User Microservice and create token there
-        # Make POST to User login service
+        # ToDo - validate with Account Microservice and create token there
+        # Make POST to Account login service
         account_info = {'email': email, 'password': password}
         
         # Dummy Function for Debugging - Create and set random token
         if DEBUG == True: # Dummy data
             account_id = 19
             is_admin = True
-            token = jwt.encode({'userid':account_id, 'is_admin':is_admin, 'exp':datetime.utcnow() + timedelta(minutes=2)}, app.config['SECRET_KEY'])
+            token = jwt.encode({'account_id':account_id, 'is_admin':is_admin, 'exp':datetime.utcnow() + timedelta(minutes=2)}, app.config['SECRET_KEY'])
         
         else:
             try:
@@ -234,7 +234,7 @@ def createAccount(DEBUG=False):
             context_text="Account successfully created. Login to account now:",
             redirect_link='/login',
             redirect_text='Login')
-        # Create Account w/ User Microservice
+        # Create Account w/ Account Microservice
         else: 
             account_info = {'data': {'name': name, 'email': email, 'password': password}}
             api_gateway_ip = config['api_gateway']['ip']
@@ -325,7 +325,7 @@ def admin_homepage(token):
 @TokenDecorator(token='required', profile='admin')
 def admin_edit_users(token):
     if request.method == 'POST':
-        # ToDo - Communicate with User Microservice
+        # ToDo - Communicate with Account Microservice
         pass
     return render_template('admin_users.html')
 
