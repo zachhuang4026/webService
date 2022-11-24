@@ -24,4 +24,13 @@
         {% endif %}
       </form>
 
+      <br></br>
+      <br></br>
+      <br></br>
+      <br></br>
+
+      <form action="{{ url_for("delete_account" )}}" method="post">
+        <input type="submit" id="button" value="Delete Account" style="background-color:#ff0000;">
+      </form>
+
 {% endblock %}

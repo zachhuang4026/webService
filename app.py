@@ -411,6 +411,45 @@ def accountInfo(token, DEBUG=False):
                 redirect_link='/',
                 redirect_text='Return home')
 
+@app.route('/account/delete', methods=['POST'])
+@TokenDecorator(token='required')
+def delete_account(token):
+    """
+    After delete account button click from account page,
+    receives POST and processes request
+    """
+    url = request_builder('deleteAccount', 'api_gateway')
+    post_body = {'token': token}
+
+    # Communicate with API gateway
+    try:
+        api_response = requests.post(url, json=post_body)
+    except:
+        status_code = 500
+        response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+        return jsonify(response), status_code
+
+    # Parse response
+    if api_response.status_code == 200:
+        header='Success!'
+        session['login'] = False # Remove session vars/cookies
+        session['is_admin'] = False
+    else:
+        header='Error ' + str(api_response.json().get('status_code'))
+
+    response = make_response(
+                    render_template(
+                            'landing.html',
+                            header=header,
+                            context_text=api_response.json().get('message'),
+                            redirect_link='/',
+                            redirect_text='Return home'))
+    
+    if api_response.status_code == 200:
+        response.delete_cookie('x-access-token')
+    
+    return response
+
 #######################################################################
 ## Admin routes
 #######################################################################
