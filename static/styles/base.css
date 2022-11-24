@@ -75,7 +75,8 @@ td {
 }
 
 .topnav a.active {
-    background-color: #04AA6D;
+    /* background-color: #04AA6D; */
+    background-color: #7D7B7E;
     color: white;
 }
 

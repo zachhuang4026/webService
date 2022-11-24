@@ -9,7 +9,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
     <body>
-        <div class="topnav">
+        <div class="topnav" {% if session['is_admin'] == true %} style="background-color:#C92032;" {% elif session['login'] == true%} style="background-color:#5233FF;" {% endif %}>
             <a href="/">Home</a>
             <a class="{% block nav_item_cart %}{% endblock nav_item_cart %}"href="/cart">Shopping Cart</a>
             <a class="{% block nav_item_watchlist %}{% endblock nav_item_watchlist %}" href="/watchlist">Watchlist</a>
