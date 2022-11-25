@@ -450,6 +450,21 @@ def delete_account(token):
     
     return response
 
+@app.route('/account/listings', methods=['GET'])
+@TokenDecorator(token='required')
+def account_listings(token, DEBUG=True):
+    """
+    GET - display account's listings
+    """
+    
+    if DEBUG == True: # use dummy info
+        listings = [{'auction_id': x, 'item_name': f'Item {x}', 'price': x} for x in range(1,5)]
+    else: 
+        # ToDo API Gateway call - listings for seller
+        pass
+    
+    return render_template('account_listings.html', token=token, listings=listings)
+    
 #######################################################################
 ## Admin routes
 #######################################################################
@@ -511,8 +526,8 @@ def admin_edit_users(token):
         return render_template('landing.html',
             header=header,
             context_text=api_response.json().get('message'),
-            redirect_link='/',
-            redirect_text='Return home') 
+            redirect_link='/admin/users',
+            redirect_text='Return to Admin User Access Control Pannel') 
 
 @app.route('/admin/auctions', methods=['POST', 'GET'])
 @TokenDecorator(token='required', profile='admin')
@@ -529,8 +544,8 @@ def admin_edit_auctions(token):
         return render_template('landing.html',
             header='Updated auction',
             context_text='Update this text',
-            redirect_link='/',
-            redirect_text='Return home') 
+            redirect_link='/admin/auctions',
+            redirect_text='Return to Auction Control Pannel') 
         
 #######################################################################
 ## Dummy routes (for testing JWT)

@@ -18,6 +18,7 @@
             <a class="{% block nav_item_admin %}{% endblock nav_item_admin %}" href="/admin">Admin</a>
             {% endif %}
             {% if session['login'] == true %}
+            <a class="{% block nav_item_account_listings %}{% endblock nav_item_account_listings %}" href="/account/listings">My Listings</a>
             <a class="{% block nav_item_account %}{% endblock nav_item_account %}" href="/account">Account</a>
             <a href="/logout">Logout</a>
             {% else %}
