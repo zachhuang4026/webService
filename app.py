@@ -481,11 +481,17 @@ def account_listings(token, DEBUG=True):
 
 @app.route('/admin')
 @TokenDecorator(token='required', profile='admin')
-def admin_homepage(token):
+def admin_homepage(token, DEBUG=True):
     """
     Route to admin console
     """
-    return render_template('admin.html')
+    if DEBUG == True:
+        # Dummy list of items
+        listings = [{'auction_id': x, 'item_name': f'Item {x}', 'price': x} for x in range(1,5)]
+    else:
+        # ToDO API Gateway call. Get active listings
+        pass
+    return render_template('admin.html', active_listings=listings)
 
 @app.route('/admin/users', methods=['POST', 'GET'])
 @TokenDecorator(token='required', profile='admin')
