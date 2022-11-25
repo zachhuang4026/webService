@@ -612,6 +612,32 @@ def admin_metrics(token, DEBUG=True):
         # Calculate basic metrics
         return render_template('admin_metrics.html', metrics = f'Displaying metrics from {start_date} to {end_date}')
 
+@app.route('/admin/categories', methods=['POST', 'GET'])
+@TokenDecorator(token='required', profile='admin')
+def admin_edit_categories(token, DEBUG=True):
+    """
+    GET - renders input form for Admin to view/select categories to remove
+    PUT - process submission of form, communicating with API gateway to remove categories
+    """
+    if request.method == 'GET':
+        if DEBUG == True:
+            category_lst = ['Shoes', 'Clothing', 'Electronics']
+        else:
+            # ToDo API Gateway call - get list of categories
+            pass
+        return render_template('admin_categories.html', categories=category_lst)
+    if request.method == 'POST':
+        remove_category_lst = [k for (k,v) in request.form.items() if v == 'Remove']
+        
+        # ToDo API Gateway call - delete categories
+
+        return render_template('landing.html',
+            header='Item Categories removed',
+            context_text='The following categories were removed from the site: {}'.format(', '.join(remove_category_lst)),
+            redirect_link='/admin',
+            redirect_text='Return to Admin Console') 
+        
+
 #######################################################################
 ## Dummy routes (for testing JWT)
 #######################################################################
