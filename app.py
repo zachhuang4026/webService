@@ -578,7 +578,22 @@ def admin_view_flagged_items(token, DEBUG=True):
     
     return render_template('admin_flagged_items.html', listings=listings)
 
-
+@app.route('/admin/metrics', methods=['POST', 'GET'])
+@TokenDecorator(token='required', profile='admin')
+def admin_metrics(token, DEBUG=True):
+    """
+    GET - Render Form
+    POST - Render Form + Results
+    """
+    if request.method == 'GET':
+        return render_template('admin_metrics.html')
+    
+    if request.method == 'POST':
+        start_date = request.form.get('start_date')
+        end_date = request.form.get('end_date')
+        # ToDo API Gateway call - get closed auctions
+        # Calculate basic metrics
+        return render_template('admin_metrics.html', metrics = f'Displaying metrics from {start_date} to {end_date}')
 
 #######################################################################
 ## Dummy routes (for testing JWT)
