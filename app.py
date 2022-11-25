@@ -319,9 +319,26 @@ def createAuction(token, DEBUG=True):
 
         return render_template('landing.html',
             header='Item listed',
-            context_text=f"Item listed successfully",
+            context_text="Item listed successfully",
             redirect_link=f'/auction/{listing_id}',
             redirect_text='View Item')
+
+@app.route('/create/category', methods=['POST','GET'])
+@TokenDecorator(token='required')
+def createCategory(token, DEBUG=True):
+    if request.method == 'GET':
+        return render_template('create_category.html')
+    
+    if request.method == 'POST':
+        new_category = request.form.get('category')
+        
+        # ToDO API Gateway call - add new category
+
+        return render_template('landing.html',
+            header='Success!',
+            context_text="Item category created",
+            redirect_link='/create/auction',
+            redirect_text='Return to item listing')
 
 @app.route('/create/account', methods =['POST', 'GET'])
 def createAccount(DEBUG=False):
