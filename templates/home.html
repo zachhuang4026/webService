@@ -3,19 +3,21 @@
 
     <h1> eBay Home Page </h1>
 
+    <!-- Search Bar -->
     <div class="split_page">
         <div style="width: 35%;">
             <h3>Token {{ token }} </h3>
         </div>
         <div style="flex-grow: 1;">
-            <form> <!-- ToDo: action="{{ url_for("login" )}}" method="post" -->
-                <input type="text" class="search_bar_text" placeholder="What are you looking for?">
+            <!-- <form action="{{ url_for('index' )}}" method="get"> -->
+            <form action="{{ url_for('index' )}}" method="get"> <!-- ToDo: -->
+                <input type="text" class="search_bar_text" id="search_terms" name="search_terms" placeholder="What are you looking for?">
                 <input type="submit" class="search_bar_button" value="Search">
             </form>
         </div>
     </div>
     
-    <h3> Current Auctions </h3>
+    <h3> {{ page_subtitle }} </h3>
 
     <!-- https://www.w3schools.com/howto/howto_js_sort_table.asp -->
     <table id="table" class="item_table">
@@ -26,7 +28,7 @@
             <th onclick="sortTable(2)"> End Time </th>
         </tr>
 
-        {% for listing in active_listings %}
+        {% for listing in listings %}
         <tr> 
             <td>  <!-- Item Picture -->
                     <a href="/auction/{{ listing['auction_id'] }}">

@@ -132,13 +132,23 @@ def index(token, DEBUG=True):
     eBay Home page
     Passes JWT, list of listing info to template
     """
+    # Get Search terms if they exist
     if DEBUG == True:
         # Dummy list of items
         listings = [{'auction_id': x, 'item_name': f'Item {x}', 'price': x} for x in range(1,5)]
-    else:  
-        # ToDo API Gateway call: Active auctions
-        pass
-    response = make_response(render_template('home.html', token=token, active_listings=listings))
+        page_subtitle = 'Active Listings'
+    # Handle Search
+    else:
+        auction_filter = request.args.get('search_terms')
+        page_subtitle = f'Showing results for {auction_filter}'
+        if auction_filter is None: # return all auctions
+            # ToDo API Gateway call. Get active auctions
+            pass
+        else:
+            # ToDo API Gateway call. Search auctions for auction_filter
+            pass
+    
+    response = make_response(render_template('home.html', token=token, listings=listings, page_subtitle=page_subtitle))
     response.set_cookie('callback', url_for('index'))
     return response
 
