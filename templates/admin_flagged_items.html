@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block nav_item_admin %}active{% endblock nav_item_admin %}
+
+{% block content %}
+
+    <h1> Flagged Items </h1>
+
+    <!-- https://www.w3schools.com/howto/howto_js_sort_table.asp -->
+    <table id="table" class="item_table">
+        <tr>
+            <th> </th>
+            <th onclick="sortTable(0)"> Item </th>
+            <th onclick="sortTable(1)"> Price </th>
+            <th onclick="sortTable(2)"> End Time </th>
+        </tr>
+
+        {% for listing in active_listings %}
+        <tr> 
+            <td>  <!-- Item Picture -->
+                    <a href="/auction/{{ listing['auction_id'] }}">
+                        <img src="../static/auction_default.JPG" style="height: 150px; padding: 3px;">
+                    </a>
+            </td>
+            <td> <!-- Item Name -->
+                <a href="/auction/{{ listing['auction_id'] }}">
+                    <h3> {{ listing['item_name'] }} </h3>
+                </a>
+            </td>
+            <td> <!-- Item Price -->
+                <h3> ${{ listing['price'] }} </h3>
+            </td>
+            <td> <!-- Listing end time -->
+                To Do
+            </td>
+        </tr>
+        {% endfor %}
+
+    </table>
+    
+
+{% endblock %}

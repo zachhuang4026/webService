@@ -556,7 +556,24 @@ def admin_edit_auctions(token):
             context_text='Update this text',
             redirect_link='/admin/auctions',
             redirect_text='Return to Auction Control Pannel') 
-        
+
+@app.route('/admin/flagged_items')
+@TokenDecorator(token='required', profile='admin')
+def admin_view_flagged_items(token, DEBUG=True):
+    """
+    GET - Display table of items flagged by users
+    """
+    if DEBUG == True:
+        # Dummy list of items
+        listings = [{'auction_id': x, 'item_name': f'Item {x}', 'price': x} for x in range(1,5)]
+    else:
+        # ToDo API Gateway call: flagged items
+        pass
+    
+    return render_template('admin_flagged_items.html', listings=listings)
+
+
+
 #######################################################################
 ## Dummy routes (for testing JWT)
 #######################################################################
