@@ -135,7 +135,7 @@ def index(token, DEBUG=True):
     # Get Search terms if they exist
     if DEBUG == True:
         # Dummy list of items
-        listings = [{'auction_id': x, 'item_name': f'Item {x}', 'price': x} for x in range(1,5)]
+        listings = [{'auction_id': x, 'item_name': f'Item {x}', 'price': x, 'bids':x} for x in range(1,5)]
         page_subtitle = 'Active Listings'
     # Handle Search
     else:
@@ -154,17 +154,26 @@ def index(token, DEBUG=True):
 
 @app.route('/cart', methods =['GET'])
 @TokenDecorator(token='required')
-def viewCart(token, DEBUG=True):
+def viewCart(token, DEBUG=False):
     """
     GET method renders list of items currently in cart
     """
     if DEBUG == True:
         # Dummy list of items
-        items = [{'auction_id': x, 'item_name': f'Item {x}', 'price': x} for x in range(1,5)]
-        total_price = sum([x['price'] for x in items])
+        items = [{'auction_id': x, 'name': f'Item {x}', 'price': x} for x in range(1,5)]
     else:
         # ToDo API Gateway call: Get cart/items for user
-        pass
+        url = request_builder('getShoppingCart', 'api_gateway')
+        try:
+            api_response = requests.get(url, params={'token': token})
+        except:
+            status_code = 500
+            response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+            return jsonify(response), status_code
+        
+        items = api_response.json()['items']
+    
+    total_price = sum([x['price'] for x in items])
     return render_template('cart.html', token=token, cart_items=items, total_price=total_price)    
         
 
@@ -261,7 +270,6 @@ def reportItem(token):
     """
     Report an item as inappropriate or counterfeit 
     """
-    # ToDo - handle POST
     # ToDo - get item Name
     if request.method == 'GET':
         listing_id = request.args.get('listing_id')
@@ -526,7 +534,6 @@ def admin_edit_users(token):
         action = request.form.get('action')
 
         if action == 'Delete':
-            # ToDo - call delete method    
             post_body = {'token': token, 'data': {'account_id': account_id}}
             url = request_builder('deleteAccount', 'api_gateway')
         else:
