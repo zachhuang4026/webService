@@ -271,7 +271,7 @@ def buy(token, DEBUG=False):
                     redirect_text='Return home')
 
 
-@app.route('/watchlist', methods=['POST', 'GET'])
+@app.route('/watchlist', methods=['GET'])
 @TokenDecorator(token='required')
 def viewWatchlist(token):
     """
@@ -293,18 +293,51 @@ def viewWatchlist(token):
 
         return render_template('watchlist.html', token=token, items=items)
 
-    if request.method == 'POST': # Handle response back from Add to Watchlist click
-        token = request.form.get('token')
-        listing_id = request.form.get('listing_id')
-        item_id = request.form.get('item_id')
+@app.route('/watchlist/add', methods=['POST'])
+@TokenDecorator(token='required')
+def addToWatchlist(token):
+    # Handle response back from Add to Watchlist click
+    token = request.form.get('token')
+    listing_id = request.form.get('listing_id')
+    item_id = request.form.get('item_id')
 
-        if None in [token, listing_id]:
-            status_code = 400
-            response = {'message': 'Bad request. Did not contain token and listing_id in JSON', 'status_code': status_code}
-            return jsonify(response), status_code
+    if None in [token, listing_id]:
+        status_code = 400
+        response = {'message': 'Bad request. Did not contain token and listing_id in JSON', 'status_code': status_code}
+        return jsonify(response), status_code
 
-        # ToDo API Gateway call: add item to watchlist
-        url = request_builder('addToWatchList', 'api_gateway')
+    # ToDo API Gateway call: add item to watchlist
+    url = request_builder('addToWatchList', 'api_gateway')
+    post_body = {'token': token, 'data': {'item_id': item_id}}
+    try:
+        api_response = requests.post(url, json=post_body)
+    except:
+        status_code = 500
+        response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+        return jsonify(response), status_code
+
+    if api_response.status_code == 200:
+        return render_template('landing.html',
+                header="Success!",
+                context_text=f"Item {listing_id} successfully added to watchlist. View now:",
+                redirect_link='/watchlist',
+                redirect_text='Watchlist')
+    else:
+        header='Error ' + str(response.json().get('status_code'))
+        return render_template('landing.html',
+            header=header,
+            context_text=response.json().get('message'),
+            redirect_link='/',
+            redirect_text='Return home')
+
+@app.route('/watchlist/udpate', methods=['POST'])
+@TokenDecorator(token='required')
+def updateWatchlist(token):
+    remove_item_id_lst = [k for (k,v) in request.form.items() if v == 'Remove']
+    print(remove_item_id_lst)
+
+    url = request_builder('deleteFromWatchList', 'api_gateway')
+    for item_id in remove_item_id_lst:
         post_body = {'token': token, 'data': {'item_id': item_id}}
         try:
             api_response = requests.post(url, json=post_body)
@@ -312,20 +345,20 @@ def viewWatchlist(token):
             status_code = 500
             response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
             return jsonify(response), status_code
-
-        if api_response.status_code == 200:
-            return render_template('landing.html',
-                    header="Success!",
-                    context_text=f"Item {listing_id} successfully added to watchlist. View now:",
-                    redirect_link='/watchlist',
-                    redirect_text='Watchlist')
-        else:
+        if api_response.status_code != 200:
             header='Error ' + str(response.json().get('status_code'))
             return render_template('landing.html',
                 header=header,
                 context_text=response.json().get('message'),
                 redirect_link='/',
                 redirect_text='Return home')
+    
+    return render_template('landing.html',
+                header="Items removed from watchlist",
+                context_text="The following items were removed from watchlist: {}".format(', '.join(remove_item_id_lst)),
+                redirect_link='/watchlist',
+                redirect_text='View watchlist')
+
 
 
 @app.route('/auction/<listing_id>')

@@ -7,31 +7,41 @@
 
     <h1> Userid {{token}}'s Watchlist </h1>
 
-    <table id="table" class="item_table">
-        <tr>
-            <th> </th>
-            <th> Item </th>
-            <th> Price </th>
-        </tr>
-
-        {% for item in items %}
-        <tr> 
-            <td>  <!-- Item Picture -->
+    <form action="{{ url_for('updateWatchlist' )}}" method="post">
+        <table id="table" class="item_table">
+            <tr>
+                <th> </th>
+                <th> Item </th>
+                <th> Price </th>
+                <th> Action </th>
+            </tr>
+    
+            {% for item in items %}
+            <tr> 
+                <td>  <!-- Item Picture -->
+                        <a href="/auction/{{ item['auction_id'] }}">
+                            <img src="../static/auction_default.JPG" style="height: 150px; padding: 3px;">
+                        </a>
+                </td>
+                <td> <!-- Item Name -->
                     <a href="/auction/{{ item['auction_id'] }}">
-                        <img src="../static/auction_default.JPG" style="height: 150px; padding: 3px;">
+                        <h3> {{ item['name'] }} </h3>
                     </a>
-            </td>
-            <td> <!-- Item Name -->
-                <a href="/auction/{{ item['auction_id'] }}">
-                    <h3> {{ item['name'] }} </h3>
-                </a>
-            </td>
-            <td> <!-- Item Price -->
-                <h3> ${{ item['price'] }} </h3>
-            </td>
-        </tr>
-        {% endfor %}
-
-    </table>
+                </td>
+                <td> <!-- Item Price -->
+                    <h3> ${{ item['price'] }} </h3>
+                </td>
+                <td> 
+                    <select name="{{ item['auction_id'] }}" id="auction_id">
+                        <option value="no_action">-</option>
+                        <option value="Remove">Remove</option>
+                    </select>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        <input type="submit" value="Submit"> 
+    </form>
+    
 
 {% endblock %}
