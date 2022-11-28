@@ -195,24 +195,50 @@ def checkout(token):
 
 @app.route('/buy', methods=['POST'])
 @TokenDecorator(token='required')
-def buy(token, DEBUG=True):
+def buy(token, DEBUG=False):
     """
     Receives POST from auction page and either performs bid or add to cart
     """
     listing_id = request.form.get('listing_id')
+    listing_type = request.form.get('listing_type')
+    item_id = request.form.get('item_id')
     token = request.form.get('token')
     bid = request.form.get('bid') # could be null of buy now listing
 
     if DEBUG == True:
         # If auction, return to item. If buy now, view cart
-        return render_template('landing.html',
-            header="Success!",
-            context_text="Bid accepted",
-            redirect_link=f'/auction/{listing_id}',
-            redirect_text='Return to Item')
+        if listing_type == 'auction':
+            return render_template('landing.html',
+                header="Success!",
+                context_text="Bid accepted",
+                redirect_link=f'/auction/{listing_id}',
+                redirect_text='Return to Item')
+        else:
+            return render_template('landing.html',
+                header="Success!",
+                context_text="Item added to cart",
+                redirect_link=f'/cart',
+                redirect_text='View cart')
     else:
         # ToDo API Gateway call: Bid or Buy Now
-        return 'Stub return: Communicate with API gateway'
+        if listing_type == 'auction':
+            # ToDo - communicate with API gateway to place bid
+            pass
+        else:
+            url = request_builder('addToShoppingCart', 'api_gateway')
+            try:
+                post_body = {'token': token, 'data': {'item_id': item_id}}
+                api_response = requests.post(url, json=post_body)
+            except:
+                status_code = 500
+                response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+                return jsonify(response), status_code
+
+        return render_template('landing.html',
+                header="Success!",
+                context_text="Item added to cart",
+                redirect_link=f'/cart',
+                redirect_text='View cart')
 
 
 @app.route('/watchlist', methods=['POST', 'GET'])
@@ -255,7 +281,7 @@ def viewAuction(token, listing_id=None, DEBUG=True):
         else:
             listing_type = 'auction'
         price = 4.69
-        listing_info = {'listing_id': listing_id, 'listing_type': listing_type, 'price':price}
+        listing_info = {'listing_id': listing_id, 'listing_type': listing_type, 'price':price, 'item_id': listing_id}
     else:
         # ToDo API Gateway call: get auction information
         pass

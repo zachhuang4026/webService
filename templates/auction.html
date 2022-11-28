@@ -16,6 +16,8 @@
             <form action="{{ url_for("buy" )}}" method="post"> <!-- ToDo - Add action for bid submit action="/action_page.php" -->
                 <label for="bid">Bid:</label>
                 <input type="hidden" name="listing_id" value="{{ listing_info['listing_id'] }}">
+                <input type="hidden" name="item_id" value="{{ listing_info['item_id'] }}">
+                <input type="hidden" name="listing_type" value="{{ listing_info['listing_type']  }}">
                 <input type="hidden" name="token" value="{{ token }}">
                 <input type="number" id="bid" name="bid" min="{{ listing_info['price'] + 0.01 }}" max="1000000" step="0.01"> <!-- ToDo set min bid based on current value-->
                 <input type="submit" value="Submit" {% if token is none %} disabled {% endif %}>
@@ -24,6 +26,8 @@
             <form action="{{ url_for("buy" )}}" method="post"> <!-- ToDo - Add action for bid submit action="/action_page.php" -->
                 <label for="bid">Buy It Now:</label>
                 <input type="hidden" name="listing_id" value="{{ listing_info['listing_id'] }}">
+                <input type="hidden" name="item_id" value="{{ listing_info['item_id'] }}">
+                <input type="hidden" name="listing_type" value="{{ listing_info['listing_type']  }}">
                 <input type="hidden" name="token" value="{{ token }}">
                 <input type="submit" value="Add to Cart" {% if token is none %} disabled {% endif %}>
             </form>
