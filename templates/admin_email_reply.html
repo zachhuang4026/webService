@@ -1,0 +1,23 @@
+
+
+{% extends "base.html" %}
+{% block nav_item_admin %}active{% endblock nav_item_admin %}
+
+{% block content %}
+
+    <h1> Reply to Email </h1>
+
+    <form action="{{ url_for('admin_email_send' )}}" method="post">
+        <label for="to_email">To:</label>
+        <input type="text" id="to_email" name="to_email" value="{{ to_email }}" ><br></br>
+        
+        <label for="subject">Subject:</label>
+        <input type="text" id="subject" name="subject" value="RE: {{ subject }}" ><br></br>
+        
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" rows="4" cols="50" required></textarea>
+        
+        <input type="submit" id="button" value="Send">
+    </form>
+
+{% endblock %}

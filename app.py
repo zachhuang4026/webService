@@ -761,6 +761,81 @@ def admin_edit_categories(token, DEBUG=True):
             context_text='The following categories were removed from the site: {}'.format(', '.join(remove_category_lst)),
             redirect_link='/admin',
             redirect_text='Return to Admin Console') 
+
+@app.route('/admin/email', methods=['POST', 'GET'])
+@TokenDecorator(token='required', profile='admin')
+def admin_email_inbox(token, DEBUG=True):
+    """
+    GET - renders input form for Admin to view/select categories to remove
+    PUT - process submission of form, communicating with API gateway to remove categories
+    """
+    url = request_builder('getEmails', 'api_gateway')
+    try:
+        api_response = requests.get(url, params={'token': token})
+    except:
+            status_code = 500
+            response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+            return jsonify(response), status_code
+
+    # Parse response
+    if api_response.status_code != 200:
+        header='Error ' + str(api_response.json().get('status_code'))
+        return render_template('landing.html',
+            header=header,
+            context_text=api_response.json().get('message'),
+            redirect_link='/admin',
+            redirect_text='Return to Admin Control Pannel')
+    
+    emails = api_response.json()['messages']
+    return render_template('admin_email_inbox.html', emails=emails)
+
+@app.route('/admin/email/create_reply', methods=['POST'])
+@TokenDecorator(token='required', profile='admin')
+def admin_email_create_reply(token):
+    """
+    Receives POST from inbox when Admin wants to reply to an email.
+    Routes request to email composer tool
+    """
+    to_email = request.form.get('to_email')
+    subject = request.form.get('subject')
+    return render_template('admin_email_reply.html', to_email=to_email, subject=subject, token=token)
+
+@app.route('/admin/email/send', methods=['POST'])
+@TokenDecorator(token='required', profile='admin')
+def admin_email_send(token):
+    """
+    Receives POST from email composer tool and communicates 
+    with API gateway to send email
+    """
+    if request.method == 'POST':
+        to_email = request.form.get('to_email')
+        subject = request.form.get('subject')
+        message = request.form.get('message')
+
+        url = request_builder('sendEmail', 'api_gateway')
+        post_body = {'token': token, 'to_email': to_email, 'subject': subject, 'message': message}
+
+        try:
+            api_response = requests.post(url, json=post_body)
+        except:
+            status_code = 500
+            response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+            return jsonify(response), status_code
+        
+        if api_response.status_code != 200:
+            header='Error ' + str(response.json().get('status_code'))
+            return render_template('landing.html',
+                header=header,
+                context_text=response.json().get('message'),
+                redirect_link='/admin',
+                redirect_text='Return to Admin console')
+    
+        return render_template('landing.html',
+                    header="Success!",
+                    context_text="Email successfuly sent",
+                    redirect_link='/admin/email',
+                    redirect_text='Return to inbox')
+        
         
 
 #######################################################################
