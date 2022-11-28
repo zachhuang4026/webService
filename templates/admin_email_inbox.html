@@ -1,0 +1,52 @@
+
+
+{% extends "base.html" %}
+{% block nav_item_watchlist %}active{% endblock nav_item_watchlist %}
+
+{% block content %}
+
+    <h1> Admin Email Inbox </h1>
+
+    <table id="table" class="item_table">
+        <tr>
+            
+            <th onclick="sortTable(0)"> From </th>
+            <th onclick="sortTable(1)"> Subject </th>
+            <th onclick="sortTable(2)"> Received </th>
+            <th onclick="sortTable(3)"> Body </th>
+            <th> </th>
+        </tr>
+
+        {% for msg in emails %}
+        <tr> 
+            <td> <!-- From -->
+                {{ msg['from'] }}
+            </td>
+            <td> <!-- Subject -->
+                {{ msg['subject'] }}
+            </td>
+
+            <td> <!-- Received -->
+                {{ msg['date'] }} 
+            </td>
+                
+            <td> <!-- Body -->
+                {{ msg['body'] }} 
+            </td>
+
+            <td>
+                <form action="{{ url_for('admin_email_create_reply' )}}" method="POST">
+                    <input type="hidden" id="to_email" name="to_email" value="{{ msg['from'] }}" >
+                    <input type="hidden" id="subject" name="subject" value="{{ msg['subject'] }}" >
+                    <input type="submit" id="button" value="Reply">
+                </form>
+                
+                <!-- <a href="/admin/email/send?to_email={{ msg['from'] }}?subject={{ msg['subject'] }}"> Reply </a> -->
+            </td>
+            
+
+        </tr>
+        {% endfor %}
+    </table>    
+
+{% endblock %}
