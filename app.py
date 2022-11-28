@@ -280,11 +280,23 @@ def viewWatchlist(token):
     """
     if request.method == 'GET':
         # ToDo API Gateway call: get list of items from Watchlist service
-        return render_template('watchlist.html', token=token)
+
+        url = request_builder('getWatchList', 'api_gateway')
+        try:
+            api_response = requests.get(url, params={'token': token})
+        except:
+            status_code = 500
+            response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+            return jsonify(response), status_code
+        
+        items = api_response.json()['items']
+
+        return render_template('watchlist.html', token=token, items=items)
 
     if request.method == 'POST': # Handle response back from Add to Watchlist click
         token = request.form.get('token')
         listing_id = request.form.get('listing_id')
+        item_id = request.form.get('item_id')
 
         if None in [token, listing_id]:
             status_code = 400
@@ -292,12 +304,29 @@ def viewWatchlist(token):
             return jsonify(response), status_code
 
         # ToDo API Gateway call: add item to watchlist
-        
-        return render_template('landing.html',
-            header='Success!',
-            context_text=f"Item {listing_id} successfully added to watchlist. View now:",
-            redirect_link='/watchlist',
-            redirect_text='Watchlist')
+        url = request_builder('addToWatchList', 'api_gateway')
+        post_body = {'token': token, 'data': {'item_id': item_id}}
+        try:
+            api_response = requests.post(url, json=post_body)
+        except:
+            status_code = 500
+            response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+            return jsonify(response), status_code
+
+        if api_response.status_code == 200:
+            return render_template('landing.html',
+                    header="Success!",
+                    context_text=f"Item {listing_id} successfully added to watchlist. View now:",
+                    redirect_link='/watchlist',
+                    redirect_text='Watchlist')
+        else:
+            header='Error ' + str(response.json().get('status_code'))
+            return render_template('landing.html',
+                header=header,
+                context_text=response.json().get('message'),
+                redirect_link='/',
+                redirect_text='Return home')
+
 
 @app.route('/auction/<listing_id>')
 @TokenDecorator(token='optional')
