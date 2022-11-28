@@ -186,12 +186,29 @@ def checkout(token):
     """
     if request.method == 'POST':
         # ToDo API Gateway call: Checkout
+        url = request_builder('checkout', 'api_gateway')
+        try:
+            post_body = {'token': token}
+            api_response = requests.post(url, json=post_body)
+        except:
+            status_code = 500
+            response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+            return jsonify(response), status_code
 
-        return render_template('landing.html',
-            header="Success!",
-            context_text="Checkout complete",
-            redirect_link='/',
-            redirect_text='Return home')
+        if api_response.status_code == 200:
+            return render_template('landing.html',
+                header="Success!",
+                context_text="Checkout complete",
+                redirect_link='/',
+                redirect_text='Return home')
+        else:
+            header='Error ' + str(response.json().get('status_code'))
+            return render_template('landing.html',
+                header=header,
+                context_text=response.json().get('message'),
+                redirect_link='/',
+                redirect_text='Return home')
+
 
 @app.route('/buy', methods=['POST'])
 @TokenDecorator(token='required')
@@ -223,7 +240,12 @@ def buy(token, DEBUG=False):
         # ToDo API Gateway call: Bid or Buy Now
         if listing_type == 'auction':
             # ToDo - communicate with API gateway to place bid
-            pass
+            
+            return render_template('landing.html',
+                header="Success!",
+                context_text="Bid accepted",
+                redirect_link=f'/auction/{listing_id}',
+                redirect_text='Return to Item')
         else:
             url = request_builder('addToShoppingCart', 'api_gateway')
             try:
@@ -234,11 +256,19 @@ def buy(token, DEBUG=False):
                 response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
                 return jsonify(response), status_code
 
-        return render_template('landing.html',
-                header="Success!",
-                context_text="Item added to cart",
-                redirect_link=f'/cart',
-                redirect_text='View cart')
+            if api_response.status_code == 200:
+                return render_template('landing.html',
+                        header="Success!",
+                        context_text="Item added to cart",
+                        redirect_link=f'/cart',
+                        redirect_text='View cart')
+            else:
+                header='Error ' + str(response.json().get('status_code'))
+                return render_template('landing.html',
+                    header=header,
+                    context_text=response.json().get('message'),
+                    redirect_link='/',
+                    redirect_text='Return home')
 
 
 @app.route('/watchlist', methods=['POST', 'GET'])
