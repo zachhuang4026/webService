@@ -828,28 +828,62 @@ def admin_metrics(token, DEBUG=True):
 
 @app.route('/admin/categories', methods=['POST', 'GET'])
 @TokenDecorator(token='required', profile='admin')
-def admin_edit_categories(token, DEBUG=True):
+def admin_edit_categories(token, DEBUG=False):
     """
     GET - renders input form for Admin to view/select categories to remove
     PUT - process submission of form, communicating with API gateway to remove categories
     """
     if request.method == 'GET':
         if DEBUG == True:
-            category_lst = ['Shoes', 'Clothing', 'Electronics']
+            item_categories = [{'id': '92829c12-ac6b-48cb-a4c0-1cb8d43d6856', 'name': 'shoes'},
+                            {'id': 'ca570235-f00e-436d-8b9a-d432a8e27d30', 'name': 'clothing'},
+                            {'id': 'a0a269d1-6b27-4121-9483-17dfad1701bf', 'name': 'electronics'},
+                            {'id': '3b48839a-c205-4ec3-9b12-52a3d25857da', 'name': 'books'}]
         else:
-            # ToDo API Gateway call - get list of categories
-            pass
-        return render_template('admin_categories.html', categories=category_lst)
+            # ToDo API Gateway call - list of item categories
+            url = request_builder('getItemCategories', 'api_gateway')
+            try:
+                api_response = requests.get(url)
+            except:
+                status_code = 500
+                response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+                return jsonify(response), status_code
+            
+            item_categories = api_response.json()['item_categories']
+            
+        return render_template('admin_categories.html', categories=item_categories)
+    
     if request.method == 'POST':
-        remove_category_lst = [k for (k,v) in request.form.items() if v == 'Remove']
+        remove_category_lst = [k.split('|') for (k,v) in request.form.items() if v == 'Remove']
+        print(remove_category_lst)
+
+        category_names = [x[1] for x in remove_category_lst]
+        category_ids = [x[0] for x in remove_category_lst]
         
         # ToDo API Gateway call - delete categories
-
+        
+        url = request_builder('removeItemCategory', 'api_gateway')
+        for i in remove_category_lst:
+            post_body = {'token': token, 'id': i[0]}
+            try:
+                api_response = requests.post(url, json=post_body)
+            except:
+                status_code = 500
+                response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+                return jsonify(response), status_code
+            if api_response.status_code != 200:
+                return render_template('landing.html',
+                    header='Error ' + str(api_response.json().get('status_code')),
+                    context_text=api_response.json().get('message'),
+                    redirect_link='/admin',
+                    redirect_text='Return to Admin Control Pannel')
+        
         return render_template('landing.html',
-            header='Item Categories removed',
-            context_text='The following categories were removed from the site: {}'.format(', '.join(remove_category_lst)),
-            redirect_link='/admin',
-            redirect_text='Return to Admin Console') 
+                    header='Success',
+                    context_text='Removed the following item categories: {}'.format(', '.join([x[1] for x in remove_category_lst])),
+                    redirect_link='/admin',
+                    redirect_text='Return to Admin Control Pannel')
+
 
 @app.route('/admin/email', methods=['POST', 'GET'])
 @TokenDecorator(token='required', profile='admin')

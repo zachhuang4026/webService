@@ -12,9 +12,9 @@
             
             {% for cat in categories %}
             <tr>
-                <td> <label for="{{ cat }}">{{ cat }}</label> </td>
+                <td> <label for="{{ cat['name'] }}">{{ cat['name'] }}</label> </td>
                 <td> 
-                    <select name="{{ cat }}" id="item_category">
+                    <select name="{{ cat['id'] }}|{{ cat['name'] }}" id="item_category">
                         <option value="no_action">-</option>
                         <option value="Remove">Remove</option>
                     </select>
