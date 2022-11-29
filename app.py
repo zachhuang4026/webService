@@ -459,7 +459,7 @@ def reportItem(token):
 
 @app.route('/create/auction', methods=['POST', 'GET'])
 @TokenDecorator(token='required')
-def createAuction(token, DEBUG=True):
+def createAuction(token, DEBUG=False):
     """
     GET displays web form for user to input info
     PUT processes info and communicates with API Gateway
@@ -471,24 +471,36 @@ def createAuction(token, DEBUG=True):
         
         # Item Categories
         if DEBUG == True:
-            category_lst = ['Clothing', 'Electronics', 'Books']
+            item_categories = [{'id': '1', 'name': 'shoes'},
+                                {'id': '2', 'name': 'clothing'},
+                                {'id': '3', 'name': 'electronics'}]
         else:
             # ToDo API Gateway call - list of item categories
-            pass
+            url = request_builder('getItemCategories', 'api_gateway')
+            try:
+                api_response = requests.get(url)
+
+            except:
+                status_code = 500
+                response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+                return jsonify(response), status_code
+            
+            item_categories = api_response.json()['item_categories']
         
         # Otherwise, get category info from API Gateway
-        return render_template('create_auction.html', today=date_str, item_categories=category_lst)
+        return render_template('create_auction.html', today=date_str, item_categories=item_categories)
     
     if request.method == 'POST':
-        # ToDo - post results directly to API gateway?
         # ToDo - handling of timezones, listing/end times etc.
         print('Received results from create auction form')
         print(request.form.get('item_name'))
         print(request.form.get('listing_type'))
         print(request.form.get('start_time'))
         print(request.form.get('end_time'))
+        category_id, category_name = request.form.get('item_category').split('|')
+        print(category_id, category_name)
 
-        # ToDo API Gateway call - list item
+        # ToDo API Gateway call - list item (Auction Service)
         listing_id = '3'
 
         return render_template('landing.html',

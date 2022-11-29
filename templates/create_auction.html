@@ -5,7 +5,7 @@
 
   <h3>List an Item:</h3>
 
-  <form action="{{ url_for("createAuction" )}}" method="post">
+  <form action="{{ url_for('createAuction' )}}" method="post">
 
     <label for="item_name">Item Name:</label>
         <input type="text" id="item_name" name="item_name" required><br></br>
@@ -32,7 +32,7 @@
         <label for="item_category" required>Item Category:</label>
         <select name="item_category" id="item_category" required>
             {% for category in item_categories %}
-            <option value="{{ category }}">{{ category }}</option>
+            <option value="{{ category['id'] }}|{{ category['name'] }}">{{ category['name'] }}</option>
             {% endfor %}
         </select>
         
