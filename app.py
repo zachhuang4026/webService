@@ -392,19 +392,57 @@ def reportItem(token):
     if request.method == 'GET':
         item_id = request.args.get('item_id')
 
-        return render_template('report_item.html', item_id=item_id)
-    if request.method == 'POST':
+        # ToDo API Gateway call: get Item name from item_id
+        url = request_builder('getItem', 'api_gateway')
+        try:
+            api_response = requests.get(url, params={'item_id': item_id})
+        except:
+            status_code = 500
+            response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+            return jsonify(response), status_code
+        
+        if api_response.status_code != 200:
+            header='Error ' + str(response.json().get('status_code'))
+            return render_template('landing.html',
+                header=header,
+                context_text=response.json().get('message'),
+                redirect_link='/',
+                redirect_text='Return home')
+
+        item = api_response.json()['object']
+        return render_template('report_item.html', item=item)
+    
+    if request.method == 'POST': # Handle input from Report Item form
+
         item_id = request.form.get('item_id')
         report_reason = request.form.get('reason')
         addtional_info = request.form.get('addtional_info')
 
         # ToDo API Gateway call: report item
+        url = request_builder('flagItem', 'api_gateway')
+        post_body = {'item_id': item_id} # 'report_reason':report_reason, 'addtional_info':addtional_info
+        try:
+            api_response = requests.post(url, json=post_body)
+        except:
+            status_code = 500
+            response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+            return jsonify(response), status_code
+        
 
-        return render_template('landing.html',
-            header='Item reported',
-            context_text=f"Item {item_id} successfully reported",
-            redirect_link='/',
-            redirect_text='Return Home')
+        if api_response.status_code == 200:
+            return render_template('landing.html',
+                    header='Item reported',
+                    context_text=f"Item {item_id} successfully reported",
+                    redirect_link='/',
+                    redirect_text='Return Home')
+        else:
+            header='Error ' + str(response.json().get('status_code'))
+            return render_template('landing.html',
+                header=header,
+                context_text=response.json().get('message'),
+                redirect_link='/',
+                redirect_text='Return home')
+
 
 #######################################################################
 ## Create Resources Routes
