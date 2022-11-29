@@ -511,20 +511,39 @@ def createAuction(token, DEBUG=False):
 
 @app.route('/create/category', methods=['POST','GET'])
 @TokenDecorator(token='required')
-def createCategory(token, DEBUG=True):
+def createCategory(token):
     if request.method == 'GET':
         return render_template('create_category.html')
     
     if request.method == 'POST':
-        new_category = request.form.get('category')
+        new_category_name = request.form.get('category')
         
         # ToDO API Gateway call - add new category
-
-        return render_template('landing.html',
-            header='Success!',
-            context_text="Item category created",
-            redirect_link='/create/auction',
-            redirect_text='Return to item listing')
+        url = request_builder('addItemCategory', 'api_gateway')
+        post_body = {'token': token, 'name': new_category_name}
+        try:
+            api_response = requests.post(url, json=post_body)
+        except:
+            status_code = 500
+            response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+            return jsonify(response), status_code
+        
+        print('here')
+        print(api_response.status_code)
+        print('here')
+        if api_response.status_code == 200:
+            return render_template('landing.html',
+                    header='Item reported',
+                    context_text="Item category created",
+                    redirect_link='/create/auction',
+                    redirect_text='Return to item listing')
+        else:
+            header='Error ' + str(api_response.json().get('status_code'))
+            return render_template('landing.html',
+                header=header,
+                context_text=api_response.json().get('message'),
+                redirect_link='/',
+                redirect_text='Return home')
 
 @app.route('/create/account', methods =['POST', 'GET'])
 def createAccount(DEBUG=False):
