@@ -162,7 +162,7 @@ def viewCart(token, DEBUG=False):
         # Dummy list of items
         items = [{'auction_id': x, 'name': f'Item {x}', 'price': x} for x in range(1,5)]
     else:
-        # ToDo API Gateway call: Get cart/items for user
+        # API Gateway call: Get cart/items for user
         url = request_builder('getShoppingCart', 'api_gateway')
         try:
             api_response = requests.get(url, params={'token': token})
@@ -185,7 +185,7 @@ def checkout(token):
     Communicates with API Gateway to process checkout
     """
     if request.method == 'POST':
-        # ToDo API Gateway call: Checkout
+        # API Gateway call: Checkout
         url = request_builder('checkout', 'api_gateway')
         try:
             post_body = {'token': token}
@@ -279,7 +279,7 @@ def viewWatchlist(token):
     PUT adds new item to watchlist. Requires input {'token': token, 'listing_id': listing_id}
     """
     if request.method == 'GET':
-        # ToDo API Gateway call: get list of items from Watchlist service
+        # API Gateway call: get list of items from Watchlist service
 
         url = request_builder('getWatchList', 'api_gateway')
         try:
@@ -296,6 +296,11 @@ def viewWatchlist(token):
 @app.route('/watchlist/add', methods=['POST'])
 @TokenDecorator(token='required')
 def addToWatchlist(token):
+    """
+    Handles POST from the 'Add to Watchlist' button on an auction page.
+    Communicates with the API gateway and Shopping microservice
+    Inputs: {'token': 'xxx', 'listing_id': 'xxx', 'item_id': 'xxx'}
+    """
     # Handle response back from Add to Watchlist click
     token = request.form.get('token')
     listing_id = request.form.get('listing_id')
@@ -306,7 +311,7 @@ def addToWatchlist(token):
         response = {'message': 'Bad request. Did not contain token and listing_id in JSON', 'status_code': status_code}
         return jsonify(response), status_code
 
-    # ToDo API Gateway call: add item to watchlist
+    # API Gateway call: add item to watchlist
     url = request_builder('addToWatchList', 'api_gateway')
     post_body = {'token': token, 'data': {'item_id': item_id}}
     try:
@@ -330,9 +335,13 @@ def addToWatchlist(token):
             redirect_link='/',
             redirect_text='Return home')
 
-@app.route('/watchlist/udpate', methods=['POST'])
+@app.route('/watchlist/update', methods=['POST'])
 @TokenDecorator(token='required')
 def updateWatchlist(token):
+    """
+    Receives POST from /watchlist to remove items from a user's watchlist
+    Input: {'token': 'xxx', 'data': {'item_id': 'xxx'}}
+    """
     remove_item_id_lst = [k for (k,v) in request.form.items() if v == 'Remove']
     print(remove_item_id_lst)
 
