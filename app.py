@@ -177,7 +177,7 @@ def viewCart(token, DEBUG=False):
     return render_template('cart.html', token=token, cart_items=items, total_price=total_price)    
         
 
-@app.route('/checkout', methods =['POST', 'GET']) # ToDo - does this take GET?
+@app.route('/checkout', methods =['POST'])
 @TokenDecorator(token='required')
 def checkout(token):
     """
@@ -263,10 +263,10 @@ def buy(token, DEBUG=False):
                         redirect_link=f'/cart',
                         redirect_text='View cart')
             else:
-                header='Error ' + str(response.json().get('status_code'))
+                header='Error ' + str(api_response.json().get('status_code'))
                 return render_template('landing.html',
                     header=header,
-                    context_text=response.json().get('message'),
+                    context_text=api_response.json().get('message'),
                     redirect_link='/',
                     redirect_text='Return home')
 
@@ -355,10 +355,10 @@ def updateWatchlist(token):
             response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
             return jsonify(response), status_code
         if api_response.status_code != 200:
-            header='Error ' + str(response.json().get('status_code'))
+            header='Error ' + str(api_response.json().get('status_code'))
             return render_template('landing.html',
                 header=header,
-                context_text=response.json().get('message'),
+                context_text=api_response.json().get('message'),
                 redirect_link='/',
                 redirect_text='Return home')
     
@@ -411,10 +411,10 @@ def reportItem(token):
             return jsonify(response), status_code
         
         if api_response.status_code != 200:
-            header='Error ' + str(response.json().get('status_code'))
+            header='Error ' + str(api_response.json().get('status_code'))
             return render_template('landing.html',
                 header=header,
-                context_text=response.json().get('message'),
+                context_text=api_response.json().get('message'),
                 redirect_link='/',
                 redirect_text='Return home')
 
@@ -437,7 +437,6 @@ def reportItem(token):
             response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
             return jsonify(response), status_code
         
-
         if api_response.status_code == 200:
             return render_template('landing.html',
                     header='Item reported',
@@ -445,10 +444,10 @@ def reportItem(token):
                     redirect_link='/',
                     redirect_text='Return Home')
         else:
-            header='Error ' + str(response.json().get('status_code'))
+            header='Error ' + str(api_response.json().get('status_code'))
             return render_template('landing.html',
                 header=header,
-                context_text=response.json().get('message'),
+                context_text=api_response.json().get('message'),
                 redirect_link='/',
                 redirect_text='Return home')
 
@@ -528,9 +527,6 @@ def createCategory(token):
             response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
             return jsonify(response), status_code
         
-        print('here')
-        print(api_response.status_code)
-        print('here')
         if api_response.status_code == 200:
             return render_template('landing.html',
                     header='Item reported',
@@ -692,7 +688,7 @@ def account_listings(token, DEBUG=True):
     if DEBUG == True: # use dummy info
         listings = [{'auction_id': x, 'item_name': f'Item {x}', 'price': x} for x in range(1,5)]
     else: 
-        # ToDo API Gateway call - listings for seller
+        # ToDo API Gateway call - listings for seller (Auction Service)
         pass
     
     return render_template('account_listings.html', token=token, listings=listings)
@@ -711,7 +707,7 @@ def admin_homepage(token, DEBUG=True):
         # Dummy list of items
         listings = [{'auction_id': x, 'item_name': f'Item {x}', 'price': x} for x in range(1,5)]
     else:
-        # ToDO API Gateway call. Get active listings
+        # ToDO API Gateway call. Get active listings (Auction Service)
         pass
     return render_template('admin.html', active_listings=listings)
 
@@ -776,7 +772,7 @@ def admin_edit_auctions(token):
     if request.method == 'GET':
         return render_template('admin_auctions.html')
     if request.method == 'POST':
-        # ToDo API Gateway call: Update auction
+        # ToDo API Gateway call: Update auction (Auction Service)
         
         return render_template('landing.html',
             header='Updated auction',
@@ -786,18 +782,32 @@ def admin_edit_auctions(token):
 
 @app.route('/admin/flagged_items')
 @TokenDecorator(token='required', profile='admin')
-def admin_view_flagged_items(token, DEBUG=True):
+def admin_view_flagged_items(token, DEBUG=False):
     """
     GET - Display table of items flagged by users
     """
     if DEBUG == True:
         # Dummy list of items
-        listings = [{'auction_id': x, 'item_name': f'Item {x}', 'price': x} for x in range(1,5)]
+        listings = [{'auctionID': x, 'name': f'Item {x}', 'bidPrice': x} for x in range(1,5)]
     else:
         # ToDo API Gateway call: flagged items
-        pass
-    
-    return render_template('admin_flagged_items.html', listings=listings)
+        url = request_builder('getFlaggedItems', 'api_gateway')
+        try:
+            api_response = requests.get(url, params={'token': token})
+        except:
+            status_code = 500
+            response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+            return jsonify(response), status_code
+
+        # Parse response
+        if api_response.status_code != 200:
+            return render_template('landing.html',
+                header='Error ' + str(api_response.json().get('status_code')),
+                context_text=api_response.json().get('message'),
+                redirect_link='/admin/users',
+                redirect_text='Return to Admin User Access Control Pannel') 
+        else:
+            return render_template('admin_flagged_items.html', flagged_items=api_response.json().get('items'))
 
 @app.route('/admin/metrics', methods=['POST', 'GET'])
 @TokenDecorator(token='required', profile='admin')
@@ -902,10 +912,10 @@ def admin_email_send(token):
             return jsonify(response), status_code
         
         if api_response.status_code != 200:
-            header='Error ' + str(response.json().get('status_code'))
+            header='Error ' + str(api_response.json().get('status_code'))
             return render_template('landing.html',
                 header=header,
-                context_text=response.json().get('message'),
+                context_text=api_response.json().get('message'),
                 redirect_link='/admin',
                 redirect_text='Return to Admin console')
     

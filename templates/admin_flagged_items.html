@@ -14,20 +14,20 @@
             <th onclick="sortTable(2)"> End Time </th>
         </tr>
 
-        {% for listing in active_listings %}
+        {% for item in flagged_items %}
         <tr> 
             <td>  <!-- Item Picture -->
-                    <a href="/auction/{{ listing['auction_id'] }}">
+                    <a href="/auction/{{ item['auctionID'] }}">
                         <img src="../static/auction_default.JPG" style="height: 150px; padding: 3px;">
                     </a>
             </td>
             <td> <!-- Item Name -->
-                <a href="/auction/{{ listing['auction_id'] }}">
-                    <h3> {{ listing['item_name'] }} </h3>
+                <a href="/auction/{{ item['auctionID'] }}">
+                    <h3> {{ item['name'] }} </h3>
                 </a>
             </td>
             <td> <!-- Item Price -->
-                <h3> ${{ listing['price'] }} </h3>
+                <h3> ${{ item['bidPrice'] }} </h3>
             </td>
             <td> <!-- Listing end time -->
                 To Do
