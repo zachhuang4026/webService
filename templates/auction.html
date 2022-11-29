@@ -45,7 +45,7 @@
             <input type="submit" value="Add to Watchlist" {% if token is none %} disabled {% endif %} >
         </form>
 
-        <a href="/reportItem?listing_id={{ listing_info['listing_id'] }}">Report this Item</a>
+        <a href="/reportItem?item_id={{ listing_info['item_id'] }}">Report this Item</a>
     </div>
 
 {% endblock %}

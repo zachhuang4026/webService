@@ -390,10 +390,11 @@ def reportItem(token):
     """
     # ToDo - get item Name
     if request.method == 'GET':
-        listing_id = request.args.get('listing_id')
-        return render_template('report_item.html', listing_id=listing_id)
+        item_id = request.args.get('item_id')
+
+        return render_template('report_item.html', item_id=item_id)
     if request.method == 'POST':
-        auction_id = request.form.get('auction_id')
+        item_id = request.form.get('item_id')
         report_reason = request.form.get('reason')
         addtional_info = request.form.get('addtional_info')
 
@@ -401,7 +402,7 @@ def reportItem(token):
 
         return render_template('landing.html',
             header='Item reported',
-            context_text=f"Item {auction_id} successfully reported",
+            context_text=f"Item {item_id} successfully reported",
             redirect_link='/',
             redirect_text='Return Home')
 
