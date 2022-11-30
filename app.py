@@ -142,11 +142,34 @@ def index(token, DEBUG=True):
         auction_filter = request.args.get('search_terms')
         page_subtitle = f'Showing results for {auction_filter}'
         if auction_filter is None: # return all auctions
-            # ToDo API Gateway call. Get active auctions
+            # ToDo API Gateway call. Get active auctions: /getAuctions
+            
+            # stub implementation to be removed
+            listings = [{'auction_id': x, 'name': f'Item {x}', 'currPrice': x, 'bids':x} for x in range(1,5)]
             pass
         else:
-            # ToDo API Gateway call. Search auctions for auction_filter
-            pass
+            # ToDo API Gateway call. (Item service). Search auctions for auction_filter
+            url = request_builder('searchItems', 'api_gateway')
+            try:
+                api_response = requests.get(url, 
+                                    params={'categoryName': auction_filter,
+                                            'description': auction_filter,
+                                            'name': auction_filter})
+            except:
+                status_code = 500
+                response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+                return jsonify(response), status_code
+        
+            if api_response.status_code != 200:
+                header='Error ' + str(api_response.json().get('status_code'))
+                return render_template('landing.html',
+                    header=header,
+                    context_text=api_response.json().get('message'),
+                    redirect_link='/',
+                    redirect_text='Return home')
+            
+            # ToDo - add filter for active auctions
+            listings = api_response.json()['items']
     
     response = make_response(render_template('home.html', token=token, listings=listings, page_subtitle=page_subtitle))
     response.set_cookie('callback', url_for('index'))
@@ -240,6 +263,8 @@ def buy(token, DEBUG=False):
         # ToDo API Gateway call: Bid or Buy Now
         if listing_type == 'auction':
             # ToDo - communicate with API gateway to place bid
+            # url = make_request('bid', 'api_gateway')
+            # url = make_request('buyNow', 'api_gateway')
             
             return render_template('landing.html',
                 header="Success!",
@@ -385,6 +410,7 @@ def viewAuction(token, listing_id=None, DEBUG=True):
         listing_info = {'listing_id': listing_id, 'listing_type': listing_type, 'price':price, 'item_id': listing_id}
     else:
         # ToDo API Gateway call: get auction information
+        # /getAuctionsDetailed?auction_ids=xxxx
         pass
     
     response = make_response(render_template('auction.html', token=token, listing_info=listing_info))
@@ -500,6 +526,7 @@ def createAuction(token, DEBUG=False):
         print(category_id, category_name)
 
         # ToDo API Gateway call - list item (Auction Service)
+        # /createAuction
         listing_id = '3'
 
         return render_template('landing.html',
@@ -689,6 +716,7 @@ def account_listings(token, DEBUG=True):
         listings = [{'auction_id': x, 'item_name': f'Item {x}', 'price': x} for x in range(1,5)]
     else: 
         # ToDo API Gateway call - listings for seller (Auction Service)
+        # /getAuctions?seller_id=xxxx
         pass
     
     return render_template('account_listings.html', token=token, listings=listings)
@@ -707,7 +735,8 @@ def admin_homepage(token, DEBUG=True):
         # Dummy list of items
         listings = [{'auction_id': x, 'item_name': f'Item {x}', 'price': x} for x in range(1,5)]
     else:
-        # ToDO API Gateway call. Get active listings (Auction Service)
+        # ToDO API Gateway call. Get active listings
+        # /getAuctions?auction_status=active
         pass
     return render_template('admin.html', active_listings=listings)
 
@@ -772,7 +801,7 @@ def admin_edit_auctions(token):
     if request.method == 'GET':
         return render_template('admin_auctions.html')
     if request.method == 'POST':
-        # ToDo API Gateway call: Update auction (Auction Service)
+        # ToDo API Gateway call: Update auction /updateAuction
         
         return render_template('landing.html',
             header='Updated auction',
@@ -823,6 +852,7 @@ def admin_metrics(token, DEBUG=True):
         start_date = request.form.get('start_date')
         end_date = request.form.get('end_date')
         # ToDo API Gateway call - get closed auctions
+        # /getAuctions
         # Calculate basic metrics
         return render_template('admin_metrics.html', metrics = f'Displaying metrics from {start_date} to {end_date}')
 

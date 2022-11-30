@@ -25,7 +25,8 @@
             <th> </th>
             <th onclick="sortTable(0)"> Item </th>
             <th onclick="sortTable(1)"> Price </th>
-            <th onclick="sortTable(2)"> End Time </th>
+            <th onclick="sortTable(2)"> Bids </th>
+            <th onclick="sortTable(3)"> End Time </th>
         </tr>
 
         {% for listing in listings %}
@@ -37,11 +38,14 @@
             </td>
             <td> <!-- Item Name -->
                 <a href="/auction/{{ listing['auction_id'] }}">
-                    <h3> {{ listing['item_name'] }} </h3>
+                    <h3> {{ listing['name'] }} </h3>
                 </a>
             </td>
             <td> <!-- Item Price -->
-                <h3> ${{ listing['price'] }} </h3>
+                <h3> ${{ listing['currPrice'] }} </h3>
+            </td>
+            <td> <!-- Bids -->
+                <h3> {{ listing['num_bids'] }} </h3>
             </td>
             <td> <!-- Listing end time -->
                 To Do
