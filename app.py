@@ -148,7 +148,7 @@ def index(token, DEBUG=False):
    
         if auction_filter is None: # return all auctions
             page_subtitle = 'Active Listings'
-            # ToDo API Gateway call. Get active auctions: /getAuctions
+            # [WIP] ToDo API Gateway call. Get active auctions: /getAuctions
             url = request_builder('searchAuctions', 'api_gateway')
             try:
                 api_response = requests.get(url, params={'auction_status': 'active'})
@@ -168,7 +168,7 @@ def index(token, DEBUG=False):
         else: # User search
             page_subtitle = f'Showing results for "{auction_filter}"'
             
-            # ToDo API Gateway call. (Item service). Search auctions for auction_filter
+            # [WIP] API Gateway call. (Item service). Search auctions for auction_filter
             url = request_builder('searchItems', 'api_gateway')
             try:
                 api_response = requests.get(url, 
@@ -280,18 +280,31 @@ def buy(token, DEBUG=False):
                 redirect_link=f'/cart',
                 redirect_text='View cart')
     else:
-        # ToDo API Gateway call: Bid or Buy Now
         if listing_type == 'auction':
-            # ToDo - communicate with API gateway to place bid
-            # url = make_request('bid', 'api_gateway')
-            # url = make_request('buyNow', 'api_gateway')
+            # [WIP] ToDo - communicate with API gateway to place bid
+            url = request_builder('bid', 'api_gateway')
+            post_body = {'token': token, 'data': {'auction_id': listing_id, 'price': bid}}
+            try:
+                api_response = requests.post(url, json=post_body)
+            except:
+                status_code = 500
+                response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+                return jsonify(response), status_code
+            
+            if api_response.status_code != 200:
+                return render_template('landing.html',
+                    header='Error ' + str(api_response.json().get('status_code')),
+                    context_text=api_response.json().get('message'),
+                    redirect_link=f'/auction/{listing_id}',
+                    redirect_text='Return to Item')
             
             return render_template('landing.html',
-                header="Success!",
-                context_text="Bid accepted",
-                redirect_link=f'/auction/{listing_id}',
-                redirect_text='Return to Item')
-        else:
+                        header="Success!",
+                        context_text="Bid placed successfully",
+                        redirect_link=f'/auction/{listing_id}',
+                        redirect_text='Return to Item')
+
+        else:  # Buy Now - Add directly to cart
             url = request_builder('addToShoppingCart', 'api_gateway')
             try:
                 post_body = {'token': token, 'data': {'item_id': item_id}}
@@ -301,20 +314,19 @@ def buy(token, DEBUG=False):
                 response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
                 return jsonify(response), status_code
 
-            if api_response.status_code == 200:
+            if api_response.status_code != 200:
                 return render_template('landing.html',
-                        header="Success!",
-                        context_text="Item added to cart",
-                        redirect_link=f'/cart',
-                        redirect_text='View cart')
-            else:
-                header='Error ' + str(api_response.json().get('status_code'))
-                return render_template('landing.html',
-                    header=header,
+                    header='Error ' + str(api_response.json().get('status_code')),
                     context_text=api_response.json().get('message'),
                     redirect_link='/',
                     redirect_text='Return home')
 
+            return render_template('landing.html',
+                    header="Success!",
+                    context_text="Item added to cart",
+                    redirect_link=f'/cart',
+                    redirect_text='View cart')
+                
 
 @app.route('/watchlist', methods=['GET'])
 @TokenDecorator(token='required')
@@ -429,7 +441,7 @@ def viewAuction(token, listing_id=None, DEBUG=False):
         price = 4.69
         listing_info = {'listing_id': listing_id, 'listing_type': listing_type, 'price':price, 'item_id': listing_id}
     else:
-        # ToDo API Gateway call: get auction information
+        # [WIP] ToDo API Gateway call: get auction information
         # /getAuctionsDetailed?auction_ids=xxxx
         
         url = request_builder('/getAuctionsDetailed', 'api_gateway')
@@ -446,11 +458,10 @@ def reportItem(token):
     """
     Report an item as inappropriate or counterfeit 
     """
-    # ToDo - get item Name
     if request.method == 'GET':
         item_id = request.args.get('item_id')
 
-        # ToDo API Gateway call: get Item name from item_id
+        # [WIP] ToDo API Gateway call: get Item name from item_id
         url = request_builder('getItems', 'api_gateway')
         try:
             api_response = requests.get(url, params={'item_ids': item_id})
@@ -476,7 +487,7 @@ def reportItem(token):
         report_reason = request.form.get('reason')
         addtional_info = request.form.get('addtional_info')
 
-        # ToDo API Gateway call: report item
+        # [WIP] ToDo API Gateway call: report item
         url = request_builder('flagItem', 'api_gateway')
         post_body = {'item_id': item_id} # 'report_reason':report_reason, 'addtional_info':addtional_info
         try:
@@ -523,7 +534,7 @@ def createAuction(token, DEBUG=False):
                                 {'id': '2', 'name': 'clothing'},
                                 {'id': '3', 'name': 'electronics'}]
         else:
-            # ToDo API Gateway call - list of item categories
+            # [WIP] ToDo API Gateway call - list of item categories
             url = request_builder('getItemCategories', 'api_gateway')
             try:
                 api_response = requests.get(url)
@@ -567,7 +578,7 @@ def createCategory(token):
     if request.method == 'POST':
         new_category_name = request.form.get('category')
         
-        # ToDO API Gateway call - add new category
+        # [WIP] ToDO API Gateway call - add new category
         url = request_builder('addItemCategory', 'api_gateway')
         post_body = {'token': token, 'name': new_category_name}
         try:
@@ -842,7 +853,7 @@ def admin_view_flagged_items(token, DEBUG=False):
         # Dummy list of items
         listings = [{'auctionID': x, 'name': f'Item {x}', 'bidPrice': x} for x in range(1,5)]
     else:
-        # ToDo API Gateway call: flagged items
+        # [WIP] ToDo API Gateway call: flagged items
         url = request_builder('getFlaggedItems', 'api_gateway')
         try:
             api_response = requests.get(url, params={'token': token})
@@ -893,7 +904,7 @@ def admin_edit_categories(token, DEBUG=False):
                             {'id': 'a0a269d1-6b27-4121-9483-17dfad1701bf', 'name': 'electronics'},
                             {'id': '3b48839a-c205-4ec3-9b12-52a3d25857da', 'name': 'books'}]
         else:
-            # ToDo API Gateway call - list of item categories
+            # [WIP] ToDo API Gateway call - list of item categories
             url = request_builder('getItemCategories', 'api_gateway')
             try:
                 api_response = requests.get(url)
@@ -913,8 +924,7 @@ def admin_edit_categories(token, DEBUG=False):
         category_names = [x[1] for x in remove_category_lst]
         category_ids = [x[0] for x in remove_category_lst]
         
-        # ToDo API Gateway call - delete categories
-        
+        # [WIP] ToDo API Gateway call - delete categories
         url = request_builder('removeItemCategory', 'api_gateway')
         for i in remove_category_lst:
             post_body = {'token': token, 'id': i[0]}
