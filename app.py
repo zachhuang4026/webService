@@ -451,9 +451,9 @@ def reportItem(token):
         item_id = request.args.get('item_id')
 
         # ToDo API Gateway call: get Item name from item_id
-        url = request_builder('getItem', 'api_gateway')
+        url = request_builder('getItems', 'api_gateway')
         try:
-            api_response = requests.get(url, params={'item_id': item_id})
+            api_response = requests.get(url, params={'item_ids': item_id})
         except:
             status_code = 500
             response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
@@ -467,7 +467,7 @@ def reportItem(token):
                 redirect_link='/',
                 redirect_text='Return home')
 
-        item = api_response.json()['object']
+        item = api_response.json()['items'][0]
         return render_template('report_item.html', item=item)
     
     if request.method == 'POST': # Handle input from Report Item form
