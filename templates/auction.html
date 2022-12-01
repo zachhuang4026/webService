@@ -13,19 +13,19 @@
             <h4> Current Price: $ {{ listing_info['price'] }} </h4>
             
             {% if listing_info['listing_type'] == "auction" %}
-            <form action="{{ url_for("buy" )}}" method="post"> <!-- ToDo - Add action for bid submit action="/action_page.php" -->
+            <form action="{{ url_for('buy' )}}" method="post"> <!-- ToDo - Add action for bid submit action="/action_page.php" -->
                 <label for="bid">Bid:</label>
-                <input type="hidden" name="listing_id" value="{{ listing_info['listing_id'] }}">
+                <input type="hidden" name="listing_id" value="{{ listing_info['auction_id'] }}">
                 <input type="hidden" name="item_id" value="{{ listing_info['item_id'] }}">
                 <input type="hidden" name="listing_type" value="{{ listing_info['listing_type']  }}">
                 <input type="hidden" name="token" value="{{ token }}">
-                <input type="number" id="bid" name="bid" min="{{ listing_info['price'] + 0.01 }}" max="1000000" step="0.01" required> <!-- ToDo set min bid based on current value-->
+                <input type="number" id="bid" name="bid" min="{{ listing_info['currPrice'] + 0.01 }}" max="1000000" step="0.01" required> <!-- ToDo set min bid based on current value-->
                 <input type="submit" value="Submit" {% if token is none %} disabled {% endif %}>
             </form>
             {% else %}
             <form action="{{ url_for("buy" )}}" method="post"> <!-- ToDo - Add action for bid submit action="/action_page.php" -->
                 <label for="bid">Buy It Now:</label>
-                <input type="hidden" name="listing_id" value="{{ listing_info['listing_id'] }}">
+                <input type="hidden" name="listing_id" value="{{ listing_info['auction_id'] }}">
                 <input type="hidden" name="item_id" value="{{ listing_info['item_id'] }}">
                 <input type="hidden" name="listing_type" value="{{ listing_info['listing_type']  }}">
                 <input type="hidden" name="token" value="{{ token }}">
@@ -39,7 +39,7 @@
     </div>
     <div>
         <form action="{{ url_for("addToWatchlist" )}}" method="post">
-            <input type="hidden" name="listing_id" value="{{ listing_info['listing_id'] }}">
+            <input type="hidden" name="listing_id" value="{{ listing_info['auction_id'] }}">
             <input type="hidden" name="item_id" value="{{ listing_info['item_id'] }}">
             <input type="hidden" name="token" value="{{ token }}">
             <input type="submit" value="Add to Watchlist" {% if token is none %} disabled {% endif %} >

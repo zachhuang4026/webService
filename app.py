@@ -127,7 +127,7 @@ def logout():
 
 @app.route('/')
 @TokenDecorator(token='optional')
-def index(token, DEBUG=True):
+def index(token, DEBUG=False):
     """
     eBay Home page
     Passes JWT, list of listing info to template
@@ -135,19 +135,35 @@ def index(token, DEBUG=True):
     # Get Search terms if they exist
     if DEBUG == True:
         # Dummy list of items
-        listings = [{'auction_id': x, 'item_name': f'Item {x}', 'price': x, 'bids':x} for x in range(1,5)]
+        listings = [{'auction_id': x, 'name': f'Item {x}', 'currPrice': x, 'bids':x} for x in range(1,5)]
         page_subtitle = 'Active Listings'
+    
     # Handle Search
     else:
         auction_filter = request.args.get('search_terms')
-        page_subtitle = f'Showing results for {auction_filter}'
+   
         if auction_filter is None: # return all auctions
+            page_subtitle = 'Active Listings'
             # ToDo API Gateway call. Get active auctions: /getAuctions
+            url = request_builder('searchAuctions', 'api_gateway')
+            try:
+                api_response = requests.get(url, params={'auction_status': 'active'})
+            except:
+                status_code = 500
+                response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+                return jsonify(response), status_code
             
-            # stub implementation to be removed
-            listings = [{'auction_id': x, 'name': f'Item {x}', 'currPrice': x, 'bids':x} for x in range(1,5)]
-            pass
-        else:
+            if api_response.status_code != 200:
+                return render_template('landing.html',
+                    header='Error ' + str(api_response.json().get('status_code')),
+                    context_text=api_response.json().get('message'),
+                    redirect_link='/',
+                    redirect_text='Return home')
+            listings = api_response.json()['auctions']
+            
+        else: # User search
+            page_subtitle = f'Showing results for "{auction_filter}"'
+            
             # ToDo API Gateway call. (Item service). Search auctions for auction_filter
             url = request_builder('searchItems', 'api_gateway')
             try:
@@ -397,7 +413,7 @@ def updateWatchlist(token):
 
 @app.route('/auction/<listing_id>')
 @TokenDecorator(token='optional')
-def viewAuction(token, listing_id=None, DEBUG=True):
+def viewAuction(token, listing_id=None, DEBUG=False):
     """
     Returns view of a listing
     """
@@ -411,7 +427,10 @@ def viewAuction(token, listing_id=None, DEBUG=True):
     else:
         # ToDo API Gateway call: get auction information
         # /getAuctionsDetailed?auction_ids=xxxx
-        pass
+        
+        url = request_builder('/getAuctionsDetailed', 'api_gateway')
+        api_response = requests.get(url, params={'auction_ids': listing_id})
+        listing_info = api_response.json()['auctions'][0]
     
     response = make_response(render_template('auction.html', token=token, listing_info=listing_info))
     response.set_cookie('callback', url_for('viewAuction', listing_id=listing_id))
