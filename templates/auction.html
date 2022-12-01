@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <h1> Auction {{ listing_info['listing_id'] }}</h1>
+    <h1> Listing {{ listing_info['auction_id'] }}</h1>
 
     <div class="split_page">
         <div class = "auction_image" style="height: 300px; width: 15%;"> 
             <img src="../static/auction_default.JPG" style="max-width: 100%; max-height: 100%;">
         </div>
         <div class="auction_details">
-            <h2> Item Name </h2>
-            <h4> Auction End time </h4>
-            <h4> Current Price: $ {{ listing_info['price'] }} </h4>
+            <h2> {{ listing_info['name'] }} </h2>
+            <h4> Auction End Time: {{ listing_info['end_time'] | format_timestamp }} </h4>
+            <h4> Current Price: $ {{ listing_info['currPrice'] | round(2, 'common') }} </h4>
             
             {% if listing_info['listing_type'] == "auction" %}
             <form action="{{ url_for('buy' )}}" method="post"> <!-- ToDo - Add action for bid submit action="/action_page.php" -->
@@ -23,7 +23,7 @@
                 <input type="submit" value="Submit" {% if token is none %} disabled {% endif %}>
             </form>
             {% else %}
-            <form action="{{ url_for("buy" )}}" method="post"> <!-- ToDo - Add action for bid submit action="/action_page.php" -->
+            <form action="{{ url_for('buy' )}}" method="post"> <!-- ToDo - Add action for bid submit action="/action_page.php" -->
                 <label for="bid">Buy It Now:</label>
                 <input type="hidden" name="listing_id" value="{{ listing_info['auction_id'] }}">
                 <input type="hidden" name="item_id" value="{{ listing_info['item_id'] }}">
@@ -33,8 +33,8 @@
             </form>
             {% endif %}
 
-            
-            <p> Additional details about the item here </p>
+            <p><strong>Item Description: </strong></h3> <br>
+            <p> {{ listing_info['description'] }} </p>
         </div>
     </div>
     <div>

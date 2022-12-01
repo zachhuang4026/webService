@@ -27,6 +27,10 @@ def request_builder(endpoint, service, config=config):
 ## Utilities
 #######################################################################
 
+@app.template_filter('format_timestamp')
+def format_timestamp(ts):
+    return datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d %-I:%M %p')
+
 @app.route('/api')
 def check_api_gateway():
     """
