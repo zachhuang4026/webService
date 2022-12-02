@@ -35,6 +35,31 @@
 
             <p><strong>Item Description: </strong></h3> <br>
             <p> {{ listing_info['description'] }} </p>
+            
+            {% if listing_info['listing_type'] == "auction" %}
+            <p><strong>Bid History:</strong></p> <br>
+            <table>
+                <tr>
+                    <th>
+                        User
+                    </th>
+                    <th>
+                        Timestamp
+                    </th>
+                    <th>
+                        Bid
+                    </th>
+                </tr>
+                {% for bid in listing_info['bid_history'] %}
+                <tr>
+                    <td> {{bid['bidder'] }} </td>
+                    <td> {{bid['time'] | format_timestamp }} </td>
+                    <td> {{bid['bid'] }} </td>
+                </tr>
+                {% endfor %}
+
+            </table>
+            {% endif%}
         </div>
     </div>
     <div>
