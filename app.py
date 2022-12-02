@@ -950,12 +950,29 @@ def admin_edit_auctions(token):
         return render_template('admin_auctions.html')
     if request.method == 'POST':
         # ToDo API Gateway call: Update auction /updateAuction
+
+        auction_id = request.form.get('auction_id')
+        post_body = {'token': token, 'auction_id': auction_id}
+        url = request_builder('endAuction', 'api_gateway')
+        try:
+            api_response = requests.post(url, json=post_body)
+        except:
+                status_code = 500
+                response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+                return jsonify(response), status_code
+        
+        if api_response.status_code != 200:
+                return render_template('landing.html',
+                    header='Error ' + str(api_response.json().get('status_code')),
+                    context_text=api_response.json().get('message'),
+                    redirect_link='/',
+                    redirect_text='Return home')
         
         return render_template('landing.html',
-            header='Updated auction',
-            context_text='Update this text',
-            redirect_link='/admin/auctions',
-            redirect_text='Return to Auction Control Pannel') 
+                    header='Success!',
+                    context_text=f'Auction {auction_id} successfully ended',
+                    redirect_link='/admin/auctions',
+                    redirect_text='Return to Auction Control Pannel')
 
 @app.route('/admin/flagged_items')
 @TokenDecorator(token='required', profile='admin')
