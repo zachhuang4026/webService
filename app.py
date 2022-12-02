@@ -850,10 +850,9 @@ def end_auction(token):
     
     return render_template('landing.html',
                 header='Success!',
-                context_text=f'Auction {auction_id} successfully deleted',
+                context_text=f'Auction {auction_id} successfully ended',
                 redirect_link='/account/listings/seller',
                 redirect_text='View Seller Auctions')
-
 
 #######################################################################
 ## Admin routes
@@ -861,7 +860,7 @@ def end_auction(token):
 
 @app.route('/admin')
 @TokenDecorator(token='required', profile='admin')
-def admin_homepage(token, DEBUG=True):
+def admin_homepage(token, DEBUG=False):
     """
     Route to admin console
     """
@@ -869,10 +868,25 @@ def admin_homepage(token, DEBUG=True):
         # Dummy list of items
         listings = [{'auction_id': x, 'item_name': f'Item {x}', 'price': x} for x in range(1,5)]
     else:
-        # ToDO API Gateway call. Get active listings
+        # [WIP] ToDo API Gateway call. Get active auctions: /getAuctions
         # /getAuctions?auction_status=active
-        pass
-    return render_template('admin.html', active_listings=listings)
+        url = request_builder('searchAuctions', 'api_gateway')
+        try:
+            api_response = requests.get(url, params={'auction_status': 'active'})
+        except:
+            status_code = 500
+            response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+            return jsonify(response), status_code
+        
+        if api_response.status_code != 200:
+            return render_template('landing.html',
+                header='Error ' + str(api_response.json().get('status_code')),
+                context_text=api_response.json().get('message'),
+                redirect_link='/',
+                redirect_text='Return home')
+        listings = api_response.json()['auctions']
+    # return render_template('admin.html', active_listings=listings)
+    return make_response(render_template('admin.html', token=token, listings=listings))
 
 @app.route('/admin/users', methods=['POST', 'GET'])
 @TokenDecorator(token='required', profile='admin')
