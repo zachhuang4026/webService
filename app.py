@@ -558,10 +558,37 @@ def createAuction(token, DEBUG=False):
         print(request.form.get('end_time'))
         category_id, category_name = request.form.get('item_category').split('|')
         print(category_id, category_name)
+        print(request.form.get('item_details'))
+        print(request.form.get('item_price'))
 
         # ToDo API Gateway call - list item (Auction Service)
         # /createAuction
+        url = request_builder('createAuction', 'api_gateway')
+        post_body = {'token': token,
+                    'data': {'item_name': request.form.get('item_name'),
+                            'item_details': request.form.get('item_details'),
+                            'item_category': category_name,
+                            'starting_price': request.form.get('item_price'),
+                            'listing_type': request.form.get('listing_type'),
+                            'listing_start_time': request.form.get('start_time'),
+                            'listing_end_time': request.form.get('end_time')}}
+        try:
+            api_response = requests.post(url, json=post_body)
+        except:
+            status_code = 500
+            response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+            return jsonify(response), status_code
+        
+        if api_response.status_code != 200:
+            return render_template('landing.html',
+                header='Error ' + str(api_response.json().get('status_code')),
+                context_text=api_response.json().get('message'),
+                redirect_link='/',
+                redirect_text='Return home')
+
+        # ToDo - uncomment this section
         listing_id = '3'
+        # listing_id = api_response.json().get('auction_id')
 
         return render_template('landing.html',
             header='Item listed',
