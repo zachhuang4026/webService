@@ -23,6 +23,14 @@ def request_builder(endpoint, service, config=config):
     port = config[service]['port']
     return f'http://{ip}:{port}/{endpoint}'
 
+def who_am_i(valid_token):
+    try:
+        token_data = jwt.decode(valid_token, app.config['SECRET_KEY'], algorithms=["HS256"]) # Secret key must match secret key used for encoding
+        return token_data["account_id"]
+    except:
+        raise
+
+
 #######################################################################
 ## Utilities
 #######################################################################
@@ -768,7 +776,7 @@ def delete_account(token):
 
 @app.route('/account/listings', methods=['GET'])
 @TokenDecorator(token='required')
-def account_listings(token, DEBUG=True):
+def account_listings(token, DEBUG=False):
     """
     GET - display account's listings
     """
@@ -776,11 +784,33 @@ def account_listings(token, DEBUG=True):
     if DEBUG == True: # use dummy info
         listings = [{'auction_id': x, 'item_name': f'Item {x}', 'price': x} for x in range(1,5)]
     else: 
-        # ToDo API Gateway call - listings for seller (Auction Service)
-        # /getAuctions?seller_id=xxxx
-        pass
-    
-    return render_template('account_listings.html', token=token, listings=listings)
+        # [WIP] ToDo API Gateway call - listings for seller (Auction Service)
+        # /searchAuctions?seller_id=xxxx
+        
+        # Try to get identity from token, otherwise just redirect to home
+        try:
+            account_id = who_am_i(token)
+        except:
+            return redirect('/')
+        
+        # Get auctions from API gateway
+        url = request_builder('searchAuctions', 'api_gateway')
+        try:
+            api_response = requests.get(url, params={'seller_id': account_id})
+        except:
+            status_code = 500
+            response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+            return jsonify(response), status_code
+        
+        if api_response.status_code != 200:
+            return render_template('landing.html',
+                header='Error ' + str(api_response.json().get('status_code')),
+                context_text=api_response.json().get('message'),
+                redirect_link='/',
+                redirect_text='Return home')
+        
+        listings = api_response.json().get('auctions')
+        return render_template('account_listings.html', token=token, listings=listings)
     
 #######################################################################
 ## Admin routes
