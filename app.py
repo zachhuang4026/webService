@@ -205,7 +205,7 @@ def index(token, DEBUG=False):
 
 @app.route('/cart', methods =['GET'])
 @TokenDecorator(token='required')
-def viewCart(token, DEBUG=False):
+def viewCart(token, DEBUG=True):
     """
     GET method renders list of items currently in cart
     """
@@ -788,7 +788,7 @@ def account_listings(token, role, DEBUG=True):
                 redirect_text='Return home')
 
     if DEBUG == True: # use dummy info
-        listings = [{'auction_id': x, 'name': f'{role} item {x}', 'currPrice': x, 'end_time': 1669773466.727793, 'bid_history': [1,2,3]} for x in range(1,5)]      
+        listings = [{'auction_id': x, 'name': f'{role} item {x}', 'currPrice': x, 'end_time': 1669773466.727793, 'bid_history': []} for x in range(1,5)]      
     else: 
         # [WIP] ToDo API Gateway call - listings for seller (Auction Service)
         # /searchAuctions?seller_id=xxxx
@@ -827,6 +827,33 @@ def account_listings(token, role, DEBUG=True):
         listings = api_response.json().get('auctions')
 
     return render_template('account_listings.html', token=token, role=role, listings=listings)
+
+@app.route('/endAuction', methods=['POST'])
+@TokenDecorator(token='required', profile='user')
+def end_auction(token):
+    auction_id = request.form.get('auction_id')
+    post_body = {'token': token, 'auction_id': auction_id}
+    url = request_builder('endAuction', 'api_gateway')
+    try:
+        api_response = requests.post(url, json=post_body)
+    except:
+            status_code = 500
+            response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+            return jsonify(response), status_code
+    
+    if api_response.status_code != 200:
+            return render_template('landing.html',
+                header='Error ' + str(api_response.json().get('status_code')),
+                context_text=api_response.json().get('message'),
+                redirect_link='/',
+                redirect_text='Return home')
+    
+    return render_template('landing.html',
+                header='Success!',
+                context_text=f'Auction {auction_id} successfully deleted',
+                redirect_link='/account/listings/seller',
+                redirect_text='View Seller Auctions')
+
 
 #######################################################################
 ## Admin routes
