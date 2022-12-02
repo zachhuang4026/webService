@@ -17,7 +17,26 @@
       </form>
 
       {% if metrics is defined %}
-      <p> Displaying Auction Metrics here </p>
+      
+      <table>
+        <tr>
+            <th></th>
+            <th>Number of Listings</th>
+            <th>Average Price ($)</th>
+        </tr>
+        <tr>
+            <td>Auction</td>
+            <td>{{ num_auctions }}</td>
+            <td>{{ auction_avg_price }}</td>
+        </tr>
+        <tr>
+            <td>Buy Now</td>
+            <td>{{ num_buy_now }}</td>
+            <td>{{ buy_now_avg_price }}</td>
+        </tr>
+      </table>
+      <br></br>
+
       {{ metrics }}
       {% endif %}
 

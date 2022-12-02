@@ -569,7 +569,7 @@ def createAuction(token, DEBUG=False):
         print(request.form.get('item_details'))
         print(request.form.get('item_price'))
 
-        # ToDo API Gateway call - list item (Auction Service)
+        # [WIP] ToDo API Gateway call - list item (Auction Service)
         # /createAuction
         url = request_builder('createAuction', 'api_gateway')
         post_body = {'token': token,
@@ -999,10 +999,47 @@ def admin_metrics(token, DEBUG=True):
     if request.method == 'POST':
         start_date = request.form.get('start_date')
         end_date = request.form.get('end_date')
-        # ToDo API Gateway call - get closed auctions
-        # /getAuctions
+        start_ts = datetime.timestamp(datetime.strptime(start_date, '%Y-%m-%d'))
+        end_ts = datetime.timestamp(datetime.strptime(end_date, '%Y-%m-%d'))
+        # [WIP] ToDo API Gateway call - get closed auctions
+        # /searchAuctions?auction_status=closed
+        url = request_builder('searchAuctions', 'api_gateway')
+        try:
+            api_response = requests.get(url, params={'auction_status': 'closed'})
+        except:
+            status_code = 500
+            response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+            return jsonify(response), status_code
+        # Parse response
+        if api_response.status_code != 200:
+            return render_template('landing.html',
+                header='Error ' + str(api_response.json().get('status_code')),
+                context_text=api_response.json().get('message'),
+                redirect_link='/admin/users',
+                redirect_text='Return to Admin User Access Control Pannel') 
+        
+        auctions = api_response.json()['auctions']
+
         # Calculate basic metrics
-        return render_template('admin_metrics.html', metrics = f'Displaying metrics from {start_date} to {end_date}')
+        # Ideally this would this would happen in a microservice method but we didn't expose one and this serves as a work-around
+        closed_auctions = [x for x in auctions if (x['end_time'] >= start_ts and x['end_time'] <= end_ts)]
+        num_auctions = sum([1 for x in closed_auctions if x['listing_type'] == 'auction'])
+        if num_auctions > 0:
+            auction_avg_price = sum([x['currPrice'] for x in closed_auctions if x['listing_type'] == 'auction'])
+        else:
+            auction_avg_price = 0
+        num_buy_now = sum([1 for x in closed_auctions if x['listing_type'] == 'buy_now'])
+        if num_buy_now > 0:
+            buy_now_avg_price = sum([x['currPrice'] for x in closed_auctions if x['listing_type'] == 'buy_now'])
+        else:
+            buy_now_avg_price = 0
+        
+        return render_template('admin_metrics.html',
+                    metrics = f'Displaying metrics from {start_date} to {end_date}',
+                    num_auctions=num_auctions,
+                    auction_avg_price=auction_avg_price,
+                    num_buy_now=num_buy_now,
+                    buy_now_avg_price=buy_now_avg_price)
 
 @app.route('/admin/categories', methods=['POST', 'GET'])
 @TokenDecorator(token='required', profile='admin')

@@ -45,7 +45,11 @@
                 <h3> ${{ listing['currPrice'] | round(2, 'common') }} </h3>
             </td>
             <td> <!-- Bids -->
+                {% if listing['listing_type'] == "auction" %}
                 <h3> {{ listing['bid_history'] | length }} </h3>
+                {% else %}
+                <h3> Buy Now </h3>
+                {% endif %}
             </td>
             <td> <!-- Listing end time -->
                 <h3> {{ listing['end_time'] | format_timestamp }} </h3>
