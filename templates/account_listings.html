@@ -1,9 +1,24 @@
 {% extends "base.html" %}
-{% block nav_item_account_listings %}active{% endblock nav_item_account_listings %}
+
+{% block nav_item_seller %}
+{% if role == 'seller' %}
+active
+{% endif %}
+{% endblock nav_item_seller %}
+
+{% block nav_item_buyer %}
+{% if role == 'buyer' %}
+active
+{% endif %}
+{% endblock nav_item_buyer %}
 
 {% block content %}
 
+    {% if role == "seller" %}
     <h1> My Seller Listings </h1>
+    {% else %}
+    <h1> My Buyer Listings </h1>
+    {% endif %}
 
     <!-- https://www.w3schools.com/howto/howto_js_sort_table.asp -->
     <table id="table" class="item_table">
@@ -19,7 +34,7 @@
         <tr> 
             <td>  <!-- Item Picture -->
                     <a href="/auction/{{ listing['auction_id'] }}">
-                        <img src="../static/auction_default.JPG" style="height: 150px; padding: 3px;">
+                        <img src="../../static/auction_default.JPG" style="height: 150px; padding: 3px;">
                     </a>
             </td>
             <td> <!-- Item Name -->

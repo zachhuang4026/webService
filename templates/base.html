@@ -18,7 +18,8 @@
             <a class="{% block nav_item_admin %}{% endblock nav_item_admin %}" href="/admin">Admin</a>
             {% endif %}
             {% if session['login'] == true %}
-            <a class="{% block nav_item_account_listings %}{% endblock nav_item_account_listings %}" href="/account/listings">My Listings</a>
+            <a class="{% block nav_item_seller %}{% endblock nav_item_seller%}" href="/account/listings/seller">My Seller Listings</a>
+            <a class="{% block nav_item_buyer %}{% endblock nav_item_buyer %}" href="/account/listings/buyer">My Bid on Items</a>
             <a class="{% block nav_item_account %}{% endblock nav_item_account %}" href="/account">Account</a>
             <a href="/logout">Logout</a>
             {% else %}

@@ -774,15 +774,21 @@ def delete_account(token):
     
     return response
 
-@app.route('/account/listings', methods=['GET'])
+@app.route('/account/listings/<role>', methods=['GET'])
 @TokenDecorator(token='required')
-def account_listings(token, DEBUG=False):
+def account_listings(token, role, DEBUG=True):
     """
     GET - display account's listings
     """
-    
+    if role not in ['seller', 'buyer']:
+        return render_template('landing.html',
+                header='Error',
+                context_text='Error rendering auctions',
+                redirect_link='/',
+                redirect_text='Return home')
+
     if DEBUG == True: # use dummy info
-        listings = [{'auction_id': x, 'item_name': f'Item {x}', 'price': x} for x in range(1,5)]
+        listings = [{'auction_id': x, 'name': f'{role} item {x}', 'currPrice': x, 'end_time': 1669773466.727793, 'bid_history': [1,2,3]} for x in range(1,5)]      
     else: 
         # [WIP] ToDo API Gateway call - listings for seller (Auction Service)
         # /searchAuctions?seller_id=xxxx
@@ -794,13 +800,22 @@ def account_listings(token, DEBUG=False):
             return redirect('/')
         
         # Get auctions from API gateway
-        url = request_builder('searchAuctions', 'api_gateway')
-        try:
-            api_response = requests.get(url, params={'seller_id': account_id})
-        except:
-            status_code = 500
-            response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
-            return jsonify(response), status_code
+        if role == 'seller':
+            url = request_builder('searchAuctions', 'api_gateway')
+            try:
+                api_response = requests.get(url, params={'seller_id': account_id})
+            except:
+                status_code = 500
+                response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+                return jsonify(response), status_code
+        else:
+            url = request_builder('searchAuctions', 'api_gateway')
+            try:
+                api_response = requests.get(url, params={'buyer_id': account_id})
+            except:
+                status_code = 500
+                response = {'message': 'Error communicating with API Gateway', 'status_code': status_code}
+                return jsonify(response), status_code
         
         if api_response.status_code != 200:
             return render_template('landing.html',
@@ -810,8 +825,9 @@ def account_listings(token, DEBUG=False):
                 redirect_text='Return home')
         
         listings = api_response.json().get('auctions')
-        return render_template('account_listings.html', token=token, listings=listings)
-    
+
+    return render_template('account_listings.html', token=token, role=role, listings=listings)
+
 #######################################################################
 ## Admin routes
 #######################################################################
