@@ -256,10 +256,10 @@ def checkout(token):
                 redirect_link='/',
                 redirect_text='Return home')
         else:
-            header='Error ' + str(response.json().get('status_code'))
+            header='Error ' + str(api_response.json().get('status_code'))
             return render_template('landing.html',
                 header=header,
-                context_text=response.json().get('message'),
+                context_text=api_response.json().get('message'),
                 redirect_link='/',
                 redirect_text='Return home')
 
@@ -495,12 +495,12 @@ def reportItem(token):
     if request.method == 'POST': # Handle input from Report Item form
 
         item_id = request.form.get('item_id')
-        report_reason = request.form.get('reason')
-        addtional_info = request.form.get('addtional_info')
+        # report_reason = request.form.get('reason')
+        # addtional_info = request.form.get('addtional_info')
 
         # [WIP] ToDo API Gateway call: report item
         url = request_builder('flagItem', 'api_gateway')
-        post_body = {'item_id': item_id} # 'report_reason':report_reason, 'addtional_info':addtional_info
+        post_body = {'token': token, 'item_id': item_id} # 'report_reason':report_reason, 'addtional_info':addtional_info
         try:
             api_response = requests.post(url, json=post_body)
         except:
