@@ -12,7 +12,7 @@
             <h4> Auction End Time: {{ listing_info['end_time'] | format_timestamp }} </h4>
             <h4> Current Price: $ {{ listing_info['currPrice'] | round(2, 'common') }} </h4>
             
-            {% if listing_info['listing_type'] == "auction" %}
+            {% if listing_info['listing_type'] == "AUCTION" %}
             <form action="{{ url_for('buy' )}}" method="post"> <!-- ToDo - Add action for bid submit action="/action_page.php" -->
                 <label for="bid">Bid:</label>
                 <input type="hidden" name="listing_id" value="{{ listing_info['auction_id'] }}">
@@ -36,7 +36,7 @@
             <p><strong>Item Description: </strong></h3> <br>
             <p> {{ listing_info['description'] }} </p>
             
-            {% if listing_info['listing_type'] == "auction" %}
+            {% if listing_info['listing_type'] == "AUCTION" %}
             <p><strong>Bid History:</strong></p> <br>
             <table>
                 <tr>

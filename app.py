@@ -437,22 +437,22 @@ def updateWatchlist(token):
 
 @app.route('/auction/<listing_id>')
 @TokenDecorator(token='optional')
-def viewAuction(token, listing_id=None, DEBUG=False):
+def viewAuction(token, listing_id, DEBUG=False):
     """
     Returns view of a listing
     """
     if DEBUG == True:
         if int(listing_id) % 2 == 0:
-            listing_type = 'buy_now'
+            listing_type = 'BUY_NOW'
         else:
-            listing_type = 'auction'
+            listing_type = 'AUCTION'
         price = 4.69
         listing_info = {'listing_id': listing_id, 'listing_type': listing_type, 'price':price, 'item_id': listing_id}
     else:
         # [WIP] ToDo API Gateway call: get auction information
         # /getAuctionsDetailed?auction_ids=xxxx
         
-        url = request_builder('/getAuctionsDetailed', 'api_gateway')
+        url = request_builder('getAuctionsDetailed', 'api_gateway')
         api_response = requests.get(url, params={'auction_ids': listing_id})
         listing_info = api_response.json()['auctions'][0]
     
@@ -562,8 +562,10 @@ def createAuction(token, DEBUG=False):
         print('Received results from create auction form')
         print(request.form.get('item_name'))
         print(request.form.get('listing_type'))
-        print(request.form.get('start_time'))
-        print(request.form.get('end_time'))
+        start_time = int(datetime.timestamp(datetime.strptime(request.form.get('start_time'), '%Y-%m-%dT%H:%M')))
+        end_time = int(datetime.timestamp(datetime.strptime(request.form.get('end_time'), '%Y-%m-%dT%H:%M')))
+        print(start_time)
+        print(end_time)
         category_id, category_name = request.form.get('item_category').split('|')
         print(category_id, category_name)
         print(request.form.get('item_details'))
@@ -576,10 +578,10 @@ def createAuction(token, DEBUG=False):
                     'data': {'item_name': request.form.get('item_name'),
                             'item_details': request.form.get('item_details'),
                             'item_category': category_name,
-                            'starting_price': request.form.get('item_price'),
+                            'starting_price': float(request.form.get('item_price')),
                             'listing_type': request.form.get('listing_type'),
-                            'listing_start_time': request.form.get('start_time'),
-                            'listing_end_time': request.form.get('end_time')}}
+                            'listing_start_time': start_time,
+                            'listing_end_time': end_time}}
         try:
             api_response = requests.post(url, json=post_body)
         except:
@@ -595,8 +597,9 @@ def createAuction(token, DEBUG=False):
                 redirect_text='Return home')
 
         # ToDo - uncomment this section
-        listing_id = '3'
-        # listing_id = api_response.json().get('auction_id')
+        # listing_id = '3'
+        listing_id = api_response.json().get('auction_id')
+        print(listing_id)
 
         return render_template('landing.html',
             header='Item listed',
