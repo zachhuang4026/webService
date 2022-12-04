@@ -205,7 +205,7 @@ def index(token, DEBUG=False):
 
 @app.route('/cart', methods =['GET'])
 @TokenDecorator(token='required')
-def viewCart(token, DEBUG=True):
+def viewCart(token, DEBUG=False):
     """
     GET method renders list of items currently in cart
     """
@@ -224,7 +224,10 @@ def viewCart(token, DEBUG=True):
         
         items = api_response.json()['items']
     
-    total_price = sum([x['price'] for x in items])
+    if len(items) == 0:
+        total_price = 0
+    else:
+        total_price = sum([x['currPrice'] for x in items])
     return render_template('cart.html', token=token, cart_items=items, total_price=total_price)    
         
 
@@ -275,7 +278,7 @@ def buy(token, DEBUG=False):
 
     if DEBUG == True:
         # If auction, return to item. If buy now, view cart
-        if listing_type == 'auction':
+        if listing_type == 'AUCTION':
             return render_template('landing.html',
                 header="Success!",
                 context_text="Bid accepted",
@@ -288,7 +291,7 @@ def buy(token, DEBUG=False):
                 redirect_link=f'/cart',
                 redirect_text='View cart')
     else:
-        if listing_type == 'auction':
+        if listing_type == 'AUCTION':
             # [WIP] ToDo - communicate with API gateway to place bid
             url = request_builder('bid', 'api_gateway')
             post_body = {'token': token, 'data': {'auction_id': listing_id, 'price': bid}}
@@ -779,7 +782,7 @@ def delete_account(token):
 
 @app.route('/account/listings/<role>', methods=['GET'])
 @TokenDecorator(token='required')
-def account_listings(token, role, DEBUG=True):
+def account_listings(token, role, DEBUG=False):
     """
     GET - display account's listings
     """
