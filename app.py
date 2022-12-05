@@ -878,6 +878,14 @@ def admin_homepage(token, DEBUG=False):
     """
     Route to admin console
     """
+    return make_response(render_template('admin.html', token=token))
+
+@app.route('/admin/current_auctions')
+@TokenDecorator(token='required', profile='admin')
+def admin_current_auctions(token, DEBUG=False):
+    """
+    Route to active auctions in admin console
+    """
     if DEBUG == True:
         # Dummy list of items
         listings = [{'auction_id': x, 'item_name': f'Item {x}', 'price': x} for x in range(1,5)]
@@ -900,7 +908,7 @@ def admin_homepage(token, DEBUG=False):
                 redirect_text='Return home')
         listings = api_response.json()['auctions']
     # return render_template('admin.html', active_listings=listings)
-    return make_response(render_template('admin.html', token=token, listings=listings))
+    return make_response(render_template('admin_current_auctions.html', token=token, listings=listings))
 
 @app.route('/admin/users', methods=['POST', 'GET'])
 @TokenDecorator(token='required', profile='admin')
