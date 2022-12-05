@@ -37,7 +37,10 @@ def who_am_i(valid_token):
 
 @app.template_filter('format_timestamp')
 def format_timestamp(ts):
-    return datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d %-I:%M %p')
+    utc_ts = datetime.utcfromtimestamp(ts)
+    cst_ts = utc_ts + timedelta(hours=-6)
+    cst_time_str = cst_ts.strftime('%Y-%m-%d %-I:%M %p CST')
+    return cst_time_str
 
 @app.route('/api')
 def check_api_gateway():
@@ -565,8 +568,8 @@ def createAuction(token, DEBUG=False):
         print('Received results from create auction form')
         print(request.form.get('item_name'))
         print(request.form.get('listing_type'))
-        start_time = int(datetime.timestamp(datetime.strptime(request.form.get('start_time'), '%Y-%m-%dT%H:%M')))
-        end_time = int(datetime.timestamp(datetime.strptime(request.form.get('end_time'), '%Y-%m-%dT%H:%M')))
+        start_time = int(datetime.timestamp(datetime.strptime(request.form.get('start_time')+'-0600', '%Y-%m-%dT%H:%M%z')))
+        end_time = int(datetime.timestamp(datetime.strptime(request.form.get('end_time')+'-0600', '%Y-%m-%dT%H:%M%z')))
         print(start_time)
         print(end_time)
         category_id, category_name = request.form.get('item_category').split('|')
