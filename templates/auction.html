@@ -10,6 +10,13 @@
         <div class="auction_details">
             <h2> {{ listing_info['name'] }} </h2>
             <h4> Auction End Time: {{ listing_info['end_time'] | format_timestamp }} </h4>
+            
+            {% if listing_info['status'] == "CLOSED" %}
+            <h4 style="color:red;"> Status: {{ listing_info['status'] }}</h4>
+            {% else %}
+            <h4 style="color:green;"> Status: {{ listing_info['status'] }}</h4>
+            {% endif %}
+            
             <h4> Current Price: $ {{ listing_info['currPrice'] | round(2, 'common') }} </h4>
             
             {% if listing_info['listing_type'] == "AUCTION" %}
@@ -20,7 +27,7 @@
                 <input type="hidden" name="listing_type" value="{{ listing_info['listing_type']  }}">
                 <input type="hidden" name="token" value="{{ token }}">
                 <input type="number" id="bid" name="bid" min="{{ listing_info['currPrice'] + 0.01 }}" max="1000000" step="0.01" required> <!-- ToDo set min bid based on current value-->
-                <input type="submit" value="Submit" {% if token is none %} disabled {% endif %}>
+                <input type="submit" value="Submit" {% if token is none or listing_info['status'] == "CLOSED"%} disabled {% endif %}>
             </form>
             {% else %}
             <form action="{{ url_for('buy' )}}" method="post"> <!-- ToDo - Add action for bid submit action="/action_page.php" -->
@@ -29,7 +36,7 @@
                 <input type="hidden" name="item_id" value="{{ listing_info['item_id'] }}">
                 <input type="hidden" name="listing_type" value="{{ listing_info['listing_type']  }}">
                 <input type="hidden" name="token" value="{{ token }}">
-                <input type="submit" value="Add to Cart" {% if token is none %} disabled {% endif %}>
+                <input type="submit" value="Add to Cart" {% if token is none or listing_info['status'] == "CLOSED" %} disabled {% endif %}>
             </form>
             {% endif %}
 
@@ -54,7 +61,7 @@
                 <tr>
                     <td> {{bid['bidder'] }} </td>
                     <td> {{bid['time'] | format_timestamp }} </td>
-                    <td> {{bid['bid'] }} </td>
+                    <td> ${{bid['bid'] }} </td>
                 </tr>
                 {% endfor %}
 
