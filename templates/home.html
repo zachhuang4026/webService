@@ -6,7 +6,7 @@
     <!-- Search Bar -->
     <div class="split_page">
         <div style="width: 35%;">
-            <h3>Token {{ token }} </h3>
+            <h3 style="color:white;">Token {{ token }} </h3>
         </div>
         <div style="flex-grow: 1;">
             <!-- <form action="{{ url_for('index' )}}" method="get"> -->
@@ -34,6 +34,7 @@
             <td>  <!-- Item Picture -->
                     <a href="/auction/{{ listing['auction_id'] }}">
                         <img src="../static/auction_default.JPG" style="height: 150px; padding: 3px;">
+                        <!-- <img src="{{ listing['imageURL'] }}" style="max-width: 100%; max-height: 100%;"> -->
                     </a>
             </td>
             <td> <!-- Item Name -->

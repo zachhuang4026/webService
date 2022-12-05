@@ -37,6 +37,9 @@ def who_am_i(valid_token):
 
 @app.template_filter('format_timestamp')
 def format_timestamp(ts):
+    """
+    Flask utility to translate unix timestamps to formatted strings in CST
+    """
     utc_ts = datetime.utcfromtimestamp(ts)
     cst_ts = utc_ts + timedelta(hours=-6)
     cst_time_str = cst_ts.strftime('%Y-%m-%d %-I:%M %p CST')
@@ -164,7 +167,7 @@ def index(token, DEBUG=False):
    
         if auction_filter is None: # return all auctions
             page_subtitle = 'Active Listings'
-            # [WIP] ToDo API Gateway call. Get active auctions: /getAuctions
+            # API Gateway call. Get active auctions: /getAuctions
             url = request_builder('searchAuctions', 'api_gateway')
             try:
                 api_response = requests.get(url, params={'auction_status': 'active'})
@@ -204,7 +207,6 @@ def index(token, DEBUG=False):
                     redirect_link='/',
                     redirect_text='Return home')
             
-            # ToDo - add filter for active auctions
             listings = api_response.json()['items']
     
     response = make_response(render_template('home.html', token=token, listings=listings, page_subtitle=page_subtitle))
@@ -300,7 +302,7 @@ def buy(token, DEBUG=False):
                 redirect_text='View cart')
     else:
         if listing_type == 'AUCTION':
-            # [WIP] ToDo - communicate with API gateway to place bid
+            # Communicate with API gateway to place bid
             url = request_builder('bid', 'api_gateway')
             post_body = {'token': token, 'data': {'auction_id': listing_id, 'price': bid}}
             try:
@@ -460,7 +462,7 @@ def viewAuction(token, listing_id, DEBUG=False):
         price = 4.69
         listing_info = {'listing_id': listing_id, 'listing_type': listing_type, 'price':price, 'item_id': listing_id}
     else:
-        # [WIP] ToDo API Gateway call: get auction information
+        # API Gateway call: get auction information
         # /getAuctionsDetailed?auction_ids=xxxx
         
         url = request_builder('getAuctionsDetailed', 'api_gateway')
@@ -480,7 +482,7 @@ def reportItem(token):
     if request.method == 'GET':
         item_id = request.args.get('item_id')
 
-        # [WIP] ToDo API Gateway call: get Item name from item_id
+        # API Gateway call: get Item name from item_id
         url = request_builder('getItems', 'api_gateway')
         try:
             api_response = requests.get(url, params={'item_ids': item_id})
@@ -506,7 +508,7 @@ def reportItem(token):
         # report_reason = request.form.get('reason')
         # addtional_info = request.form.get('addtional_info')
 
-        # [WIP] ToDo API Gateway call: report item
+        # API Gateway call: report item
         url = request_builder('flagItem', 'api_gateway')
         post_body = {'token': token, 'item_id': item_id} # 'report_reason':report_reason, 'addtional_info':addtional_info
         try:
@@ -553,7 +555,7 @@ def createAuction(token, DEBUG=False):
                                 {'id': '2', 'name': 'clothing'},
                                 {'id': '3', 'name': 'electronics'}]
         else:
-            # [WIP] ToDo API Gateway call - list of item categories
+            # API Gateway call - list of item categories
             url = request_builder('getItemCategories', 'api_gateway')
             try:
                 api_response = requests.get(url)
@@ -569,20 +571,19 @@ def createAuction(token, DEBUG=False):
         return render_template('create_auction.html', today=date_str, item_categories=item_categories)
     
     if request.method == 'POST':
-        # ToDo - handling of timezones, listing/end times etc.
         print('Received results from create auction form')
-        print(request.form.get('item_name'))
-        print(request.form.get('listing_type'))
+        # print(request.form.get('item_name'))
+        # print(request.form.get('listing_type'))
         start_time = int(datetime.timestamp(datetime.strptime(request.form.get('start_time')+'-0600', '%Y-%m-%dT%H:%M%z')))
         end_time = int(datetime.timestamp(datetime.strptime(request.form.get('end_time')+'-0600', '%Y-%m-%dT%H:%M%z')))
-        print(start_time)
-        print(end_time)
+        # print(start_time)
+        # print(end_time)
         category_id, category_name = request.form.get('item_category').split('|')
-        print(category_id, category_name)
-        print(request.form.get('item_details'))
-        print(request.form.get('item_price'))
+        # print(category_id, category_name)
+        # print(request.form.get('item_details'))
+        # print(request.form.get('item_price'))
 
-        # [WIP] ToDo API Gateway call - list item (Auction Service)
+        # API Gateway call - list item (Auction Service)
         # /createAuction
         url = request_builder('createAuction', 'api_gateway')
         post_body = {'token': token,
@@ -607,8 +608,6 @@ def createAuction(token, DEBUG=False):
                 redirect_link='/',
                 redirect_text='Return home')
 
-        # ToDo - uncomment this section
-        # listing_id = '3'
         listing_id = api_response.json().get('auction_id')
         print(listing_id)
 
@@ -627,7 +626,7 @@ def createCategory(token):
     if request.method == 'POST':
         new_category_name = request.form.get('category')
         
-        # [WIP] ToDO API Gateway call - add new category
+        # API Gateway call - add new category
         url = request_builder('addItemCategory', 'api_gateway')
         post_body = {'token': token, 'name': new_category_name}
         try:
@@ -804,9 +803,8 @@ def account_listings(token, role, DEBUG=False):
     if DEBUG == True: # use dummy info
         listings = [{'auction_id': x, 'name': f'{role} item {x}', 'currPrice': x, 'end_time': 1669773466.727793, 'bid_history': []} for x in range(1,5)]      
     else: 
-        # [WIP] ToDo API Gateway call - listings for seller (Auction Service)
+        # API Gateway call - listings for seller (Auction Service)
         # /searchAuctions?seller_id=xxxx
-        
         # Try to get identity from token, otherwise just redirect to home
         try:
             account_id = who_am_i(token)
@@ -890,7 +888,7 @@ def admin_current_auctions(token, DEBUG=False):
         # Dummy list of items
         listings = [{'auction_id': x, 'item_name': f'Item {x}', 'price': x} for x in range(1,5)]
     else:
-        # [WIP] ToDo API Gateway call. Get active auctions: /getAuctions
+        # API Gateway call. Get active auctions: /getAuctions
         # /getAuctions?auction_status=active
         url = request_builder('searchAuctions', 'api_gateway')
         try:
@@ -971,8 +969,7 @@ def admin_edit_auctions(token):
     if request.method == 'GET':
         return render_template('admin_auctions.html')
     if request.method == 'POST':
-        # ToDo API Gateway call: Update auction /updateAuction
-
+        # API Gateway call: Update auction /updateAuction
         auction_id = request.form.get('auction_id')
         post_body = {'token': token, 'auction_id': auction_id}
         url = request_builder('endAuction', 'api_gateway')
@@ -1006,7 +1003,7 @@ def admin_view_flagged_items(token, DEBUG=False):
         # Dummy list of items
         listings = [{'auctionID': x, 'name': f'Item {x}', 'bidPrice': x} for x in range(1,5)]
     else:
-        # [WIP] ToDo API Gateway call: flagged items
+        # API Gateway call: flagged items
         url = request_builder('getFlaggedItems', 'api_gateway')
         try:
             api_response = requests.get(url, params={'token': token})
@@ -1040,7 +1037,7 @@ def admin_metrics(token, DEBUG=True):
         end_date = request.form.get('end_date')
         start_ts = datetime.timestamp(datetime.strptime(start_date, '%Y-%m-%d'))
         end_ts = datetime.timestamp(datetime.strptime(end_date, '%Y-%m-%d'))
-        # [WIP] ToDo API Gateway call - get closed auctions
+        # API Gateway call - get closed auctions
         # /searchAuctions?auction_status=closed
         url = request_builder('searchAuctions', 'api_gateway')
         try:
@@ -1094,7 +1091,7 @@ def admin_edit_categories(token, DEBUG=False):
                             {'id': 'a0a269d1-6b27-4121-9483-17dfad1701bf', 'name': 'electronics'},
                             {'id': '3b48839a-c205-4ec3-9b12-52a3d25857da', 'name': 'books'}]
         else:
-            # [WIP] ToDo API Gateway call - list of item categories
+            # API Gateway call - list of item categories
             url = request_builder('getItemCategories', 'api_gateway')
             try:
                 api_response = requests.get(url)
@@ -1114,7 +1111,7 @@ def admin_edit_categories(token, DEBUG=False):
         category_names = [x[1] for x in remove_category_lst]
         category_ids = [x[0] for x in remove_category_lst]
         
-        # [WIP] ToDo API Gateway call - delete categories
+        # API Gateway call - delete categories
         url = request_builder('removeItemCategory', 'api_gateway')
         for i in remove_category_lst:
             post_body = {'token': token, 'id': i[0]}
@@ -1140,7 +1137,7 @@ def admin_edit_categories(token, DEBUG=False):
 
 @app.route('/admin/email', methods=['POST', 'GET'])
 @TokenDecorator(token='required', profile='admin')
-def admin_email_inbox(token, DEBUG=True):
+def admin_email_inbox(token):
     """
     GET - renders input form for Admin to view/select categories to remove
     PUT - process submission of form, communicating with API gateway to remove categories
