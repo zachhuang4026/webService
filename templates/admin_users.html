@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block nav_item_admin %}active{% endblock nav_item_admin %}
+
+{% block content %}
+    <h1> Admin Control Page - User Access Modifications</h1>
+    <form action="{{ url_for("admin_edit_users" )}}" method="post">
+        <label for="account_id">account_id:</label>
+        <input type="text" id="account_id" name="account_id" required><br></br>
+
+        <label for="action">Action:</label>
+        <select name="action" id="action" required>
+            <option value="Suspend">Suspend</option>
+            <option value="Activate">Make Active</option>
+            <option value="Delete">Delete</option>
+            <option value="Make_Admin">Make Admin</option>
+            <option value="Remove_Admin">Remove Admin</option>
+        </select> <br></br>
+        
+        <input type="submit" value="Submit">
+      </form>
+
+      <br></br>
+      <ul>
+        <li><strong>Suspend:</strong> Makes account unable to login</li>
+        <li><strong>Activate:</strong> Removes suspended status from account</li>
+        <li><strong>Delete:</strong> Removes account from eBay databases</li>
+        <li><strong>Make Admin:</strong> Gives account admin access privileges</li>
+        <li><strong>Remove Admin:</strong> Removes admin access privileges from account</li>
+      </ul>
+
+{% endblock %}

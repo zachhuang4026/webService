@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block nav_item_create_auction %}active{% endblock nav_item_create_auction %}
+
+{% block content %}
+
+  <h3>Report an Item:</h3>
+
+  <form action="{{ url_for('reportItem' )}}" method="post">
+
+    <label for="item_name">Item Name:</label>
+        <input type="text" id="item_name" name="item_name" value="{{ item['name'] }}" readonly><br></br>
+        <!-- ToDo - Source Item name from redirect -->
+
+    <label for="item_name">Item ID:</label>
+        <input type="text" id="item_id" name="item_id" value="{{ item['id'] }}" readonly><br></br>
+
+    <label for="reason" required>This item is:</label>
+        <select name="reason" id="reason" required>
+            <option value="inappropriate">Inappropriate</option>
+            <option value="counterfeit">Counterfeit</option>
+    </select> <br></br>
+    
+    <label for="addtional_info">Additional Info:</label>
+    <textarea id="addtional_info" name="addtional_info" rows="4" cols="50"></textarea>
+    <br></br>
+      
+    <input type="submit" value="Submit">
+  </form>
+
+{% endblock %}

@@ -1,0 +1,9 @@
+<p>Login:</p>
+
+<form action="{{ url_for("login" )}}" method="post"> <!-- action="/action_page.php" -->
+    <label for="email">Email (username):</label><br>
+    <input type="text" id="email" name="email" required><br></br>
+    <label for="password">Password:</label><br>
+    <input type="password" id="password" name="password" required><br></br>
+    <input type="submit" value="Submit">
+  </form>

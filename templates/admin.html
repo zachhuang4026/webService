@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block nav_item_admin %}active{% endblock nav_item_admin %}
+
+{% block content %}
+    <h1> Admin Control Page </h1>
+    <ul>
+        <li> <a href="/admin/auctions"> Edit Auction </a> </li>
+        <li> <a href="/admin/users"> User Access </a> </li>
+        <li> <a href="/admin/categories"> Edit Auction Categories </a> </li>
+        <li> <a href="/admin/current_auctions"> View Active Listings </a> </li>
+        <li> <a href="/admin/flagged_items"> View Flagged Items </a></li>
+        <li> <a href="/admin/email"> Email Inbox </a></li>
+        <li> <a href="/admin/metrics"> View Listing Metrics </a> </li>
+    </ul>
+
+{% endblock %}

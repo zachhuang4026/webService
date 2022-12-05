@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <h1> Listing {{ listing_info['auction_id'] }}</h1>
+
+    <div class="split_page">
+        <div class = "auction_image" style="height: 300px; width: 15%;"> 
+            <img src="../static/auction_default.JPG" style="max-width: 100%; max-height: 100%;">
+            <!-- <img src="{{ listing_info['imageURL'] }}" style="max-width: 100%; max-height: 100%;"> -->
+        </div>
+        <div class="auction_details">
+            <h2> {{ listing_info['name'] }} </h2>
+            <h4> Auction End Time: {{ listing_info['end_time'] | format_timestamp }} </h4>
+            
+            {% if listing_info['status'] == "CLOSED" %}
+            <h4 style="color:red;"> Status: {{ listing_info['status'] }}</h4>
+            {% else %}
+            <h4 style="color:green;"> Status: {{ listing_info['status'] }}</h4>
+            {% endif %}
+            
+            <h4> Current Price: $ {{ listing_info['currPrice'] | round(2, 'common') }} </h4>
+            
+            {% if listing_info['listing_type'] == "AUCTION" %}
+            <form action="{{ url_for('buy' )}}" method="post"> <!-- ToDo - Add action for bid submit action="/action_page.php" -->
+                <label for="bid">Bid:</label>
+                <input type="hidden" name="listing_id" value="{{ listing_info['auction_id'] }}">
+                <input type="hidden" name="item_id" value="{{ listing_info['item_id'] }}">
+                <input type="hidden" name="listing_type" value="{{ listing_info['listing_type']  }}">
+                <input type="hidden" name="token" value="{{ token }}">
+                <input type="number" id="bid" name="bid" min="{{ listing_info['currPrice'] + 0.01 }}" max="1000000" step="0.01" required> <!-- ToDo set min bid based on current value-->
+                <input type="submit" value="Submit" {% if token is none or listing_info['status'] == "CLOSED"%} disabled {% endif %}>
+            </form>
+            {% else %}
+            <form action="{{ url_for('buy' )}}" method="post"> <!-- ToDo - Add action for bid submit action="/action_page.php" -->
+                <label for="bid">Buy It Now:</label>
+                <input type="hidden" name="listing_id" value="{{ listing_info['auction_id'] }}">
+                <input type="hidden" name="item_id" value="{{ listing_info['item_id'] }}">
+                <input type="hidden" name="listing_type" value="{{ listing_info['listing_type']  }}">
+                <input type="hidden" name="token" value="{{ token }}">
+                <input type="submit" value="Add to Cart" {% if token is none or listing_info['status'] == "CLOSED" %} disabled {% endif %}>
+            </form>
+            {% endif %}
+
+            <p><strong>Item Description: </strong></h3> <br>
+            <p> {{ listing_info['description'] }} </p>
+            
+            {% if listing_info['listing_type'] == "AUCTION" %}
+            <p><strong>Bid History:</strong></p> <br>
+            <table>
+                <tr>
+                    <th>
+                        User
+                    </th>
+                    <th>
+                        Timestamp
+                    </th>
+                    <th>
+                        Bid
+                    </th>
+                </tr>
+                {% for bid in listing_info['bid_history'] %}
+                <tr>
+                    <td> {{bid['bidder'] }} </td>
+                    <td> {{bid['time'] | format_timestamp }} </td>
+                    <td> ${{bid['bid'] }} </td>
+                </tr>
+                {% endfor %}
+
+            </table>
+            {% endif%}
+        </div>
+    </div>
+    <div>
+        <form action="{{ url_for("addToWatchlist" )}}" method="post">
+            <input type="hidden" name="listing_id" value="{{ listing_info['auction_id'] }}">
+            <input type="hidden" name="item_id" value="{{ listing_info['item_id'] }}">
+            <input type="hidden" name="token" value="{{ token }}">
+            <input type="submit" value="Add to Watchlist" {% if token is none %} disabled {% endif %} >
+        </form>
+
+        <a href="/reportItem?item_id={{ listing_info['item_id'] }}">Report this Item</a>
+    </div>
+
+{% endblock %}

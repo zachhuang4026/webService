@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block nav_item_cart %}active{% endblock nav_item_cart %}
+
+{% block content %}
+
+    <h1> {{token}}'s Shopping Cart </h1>
+
+    <table id="table" class="item_table">
+        <tr>
+            <th> </th>
+            <th> Item </th>
+            <th> Price </th>
+        </tr>
+
+        {% for item in cart_items %}
+        <tr> 
+            <td>  <!-- Item Picture -->
+                    <a href="/auction/{{ item['auction_id'] }}">
+                        <img src="../static/auction_default.JPG" style="height: 150px; padding: 3px;">
+                    </a>
+            </td>
+            <td> <!-- Item Name -->
+                <a href="/auction/{{ item['auction_id'] }}">
+                    <h3> {{ item['name'] }} </h3>
+                </a>
+            </td>
+            <td> <!-- Item Price -->
+                <h3> ${{ item['currPrice'] }} </h3>
+            </td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td> <h3> Total Price </h3></td>
+            <td></td>
+            <td><h3> ${{ total_price }} </h3></td>
+        </tr>
+
+    </table>
+
+    <form action="{{ url_for("checkout" )}}" method="post">
+        <input type="hidden" value="{{ token }}">
+        {% if cart_items is defined and cart_items|length > 0 %}
+        <input type="submit" value="Checkout">
+        {% else %}
+        <input type="submit" value="Checkout" disabled>
+        {% endif %}
+    </form>
+
+
+{% endblock %}

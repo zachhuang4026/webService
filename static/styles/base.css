@@ -1,0 +1,91 @@
+/* Div for side-by-side formatting of objects */
+.split_page {
+    display: flex;
+    /* height: 300px; */
+    /* border: 5px dashed red; */
+    padding: 5px;
+}
+
+/* Divs for formatting auction elements */
+.auction_details {
+    flex-grow: 1;
+    width: 200px;
+    padding: 5px;
+    /* border: 5px solid green; */
+    margin: 0;
+}
+.auction_image {
+    width: 10%; 
+    height: 150px;
+    padding: 5px;
+    /* border: 5px solid gray; */
+    margin: 0;
+}
+
+/* Search Bar formatting */
+.search_bar_text {
+    font-size: 20px;
+    height: 30px;
+    width: 350px;
+}
+.search_bar_button {
+    font-size: 20px;
+    height: 30px; 
+    width: 90px; 
+}
+
+/* Formatting for Item Tables */
+th {
+    cursor: pointer;
+    width: 200px;
+}
+tr{
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+}
+td {
+    text-align: center
+}
+
+.item_table{
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Nav bar formatting */
+
+.topnav {
+    overflow: hidden;
+    background-color: #333;
+}
+
+.topnav a {
+    float: left;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+}
+
+.topnav a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+.topnav a.active {
+    /* background-color: #04AA6D; */
+    background-color: #7D7B7E;
+    color: white;
+}
+
+/* General page formatting */
+body{
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.rest_of_page{
+    margin: 10px;
+}

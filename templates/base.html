@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+    <head>
+        <!-- CSS Stylesheet -->
+        <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/base.css') }}">
+        <!-- JS Functions -->
+        <script src="{{ url_for('static', filename='base.js' )}}"></script>
+        <!-- Topnav format -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        <div class="topnav" {% if session['is_admin'] == true %} style="background-color:#C92032;" {% elif session['login'] == true%} style="background-color:#5233FF;" {% endif %}>
+            <a href="/">Home</a>
+            <a class="{% block nav_item_cart %}{% endblock nav_item_cart %}"href="/cart">Shopping Cart</a>
+            <a class="{% block nav_item_watchlist %}{% endblock nav_item_watchlist %}" href="/watchlist">Watchlist</a>
+            <a class="{% block nav_item_create_auction %}{% endblock nav_item_create_auction %}" href="/create/auction">List Item</a>
+            {% if session['is_admin'] == true %}
+            <a class="{% block nav_item_admin %}{% endblock nav_item_admin %}" href="/admin">Admin</a>
+            {% endif %}
+            {% if session['login'] == true %}
+            <a class="{% block nav_item_seller %}{% endblock nav_item_seller%}" href="/account/listings/seller">My Seller Listings</a>
+            <a class="{% block nav_item_buyer %}{% endblock nav_item_buyer %}" href="/account/listings/buyer">My Bid on Items</a>
+            <a class="{% block nav_item_account %}{% endblock nav_item_account %}" href="/account">Account</a>
+            <a href="/logout">Logout</a>
+            {% else %}
+            <a href="/login">Login</a>
+            <a class="{% block nav_item_create_account %}{% endblock nav_item_create_account %}" href="/create/account">Create Account</a>
+            {% endif %}
+        </div>
+        <div class="rest_of_page">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </body>
+</html>

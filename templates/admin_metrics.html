@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block nav_item_admin %}active{% endblock nav_item_admin %}
+
+{% block content %}
+    <h1> Closed Auction Metrics </h1>
+    <form action="{{ url_for('admin_metrics' )}}" method="post">
+        <label for="start_date">Start Date:</label>
+        <input type="date" id="start_date"
+            name="start_date" value="{{ today }}"
+            min="2022-10-01" max="{{ today }}" required> <br></br>
+
+        <label for="end_date">End Date:</label>
+        <input type="date" id="end_date"
+            name="end_date" value="{{ today }}"
+            min="2022-10-02" max="{{ today }}" required> <br></br>        
+        <input type="submit" value="Submit">
+      </form>
+
+      {% if metrics is defined %}
+      
+      <table>
+        <tr>
+            <th></th>
+            <th>Number of Listings</th>
+            <th>Average Price ($)</th>
+        </tr>
+        <tr>
+            <td>Auction</td>
+            <td>{{ num_auctions }}</td>
+            <td>{{ auction_avg_price }}</td>
+        </tr>
+        <tr>
+            <td>Buy Now</td>
+            <td>{{ num_buy_now }}</td>
+            <td>{{ buy_now_avg_price }}</td>
+        </tr>
+      </table>
+      <br></br>
+
+      {{ metrics }}
+      {% endif %}
+
+
+{% endblock %}

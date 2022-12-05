@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block nav_item_admin %}active{% endblock nav_item_admin %}
+
+{% block content %}
+
+    <h1> Flagged Items </h1>
+
+    <!-- https://www.w3schools.com/howto/howto_js_sort_table.asp -->
+    <table id="table" class="item_table">
+        <tr>
+            <th> </th>
+            <th onclick="sortTable(1)"> Item </th>
+            <th onclick="sortTable(2)"> Price </th>
+            <th onclick="sortTable(3)"> Bids </th>
+            <th onclick="sortTable(4)"> End Time </th>
+        </tr>
+
+        {% for listing in flagged_items %}
+        <tr> 
+            <td>  <!-- Item Picture -->
+                    <a href="/auction/{{ listing['auction_id'] }}">
+                        <img src="../static/auction_default.JPG" style="height: 150px; padding: 3px;">
+                    </a>
+            </td>
+            <td> <!-- Item Name -->
+                <a href="/auction/{{ listing['auction_id'] }}">
+                    <h3> {{ listing['name'] }} </h3>
+                </a>
+            </td>
+            <td> <!-- Item Price -->
+                <h3> ${{ listing['currPrice'] | round(2, 'common') }} </h3>
+            </td>
+            <td> <!-- Bids -->
+                {% if listing['listing_type'] == "AUCTION" %}
+                <h3> {{ listing['bid_history'] | length }} </h3>
+                {% else %}
+                <h3> Buy Now </h3>
+                {% endif %}
+            </td>
+            <td> <!-- Listing end time -->
+                <h3> {{ listing['end_time'] | format_timestamp }} </h3>
+            </td>
+        </tr>
+        {% endfor %}
+
+    </table>
+    
+
+{% endblock %}
