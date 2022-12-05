@@ -129,7 +129,12 @@ def logout():
     """
     Log user out of platform by resetting cookies/session info containing JWT
     """
-    response = make_response(redirect(url_for('index')))
+    # response = make_response(redirect(url_for('index')))
+    response = make_response(render_template('landing.html',
+                    header='Success',
+                    context_text='Logged out of account',
+                    redirect_link='/',
+                    redirect_text='Return home'))
     # Clear cookies and session variables
     response.delete_cookie('x-access-token')
     session['login'] = False
@@ -829,7 +834,7 @@ def account_listings(token, role, DEBUG=False):
         if api_response.status_code != 200:
             return render_template('landing.html',
                 header='Error ' + str(api_response.json().get('status_code')),
-                context_text=api_response.json().get('message'),
+                context_text='Error getting bid on auctions',
                 redirect_link='/',
                 redirect_text='Return home')
         
