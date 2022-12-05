@@ -2,7 +2,7 @@
 .split_page {
     display: flex;
     /* height: 300px; */
-    border: 5px dashed red;
+    /* border: 5px dashed red; */
     padding: 5px;
 }
 
@@ -11,14 +11,14 @@
     flex-grow: 1;
     width: 200px;
     padding: 5px;
-    border: 5px solid green;
+    /* border: 5px solid green; */
     margin: 0;
 }
 .auction_image {
     width: 10%; 
     height: 150px;
     padding: 5px;
-    border: 5px solid gray;
+    /* border: 5px solid gray; */
     margin: 0;
 }
 
